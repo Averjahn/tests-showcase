@@ -1,0 +1,11 @@
+services:
+  trainers-showcase-web:
+    container_name: trainers-showcase-web
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      PORT: ${PORT:-3010}
+    ports:
+      - "${PORT:-3010}:3010"

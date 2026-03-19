@@ -1,0 +1,8 @@
+{
+  "id": "test-13-main",
+  "name": "Исправь букву в слове",
+  "description": "Выберите правильную гласную букву в слове по картинке.",
+  "category": "1.1",
+  "estimatedTime": 300,
+  "difficulty": "easy"
+}

@@ -1,0 +1,66 @@
+const TESTS = [
+  { id: "test-02-main", title: "Добавить часть слова (начало/конец)" },
+  { id: "test-13-main", title: "Исправь букву в слове" },
+  { id: "test-04-main", title: "Найти окончание слов" },
+  { id: "test-01-mame", title: "Составление фразы по картинке" },
+  { id: "test-14-main", title: "Фраза и картинка" },
+] as const;
+
+export default function HomePage() {
+  return (
+    <main
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 24,
+      }}
+    >
+      <section
+        style={{
+          width: "100%",
+          maxWidth: 720,
+          background: "#fff",
+          border: "1px solid #e5e7eb",
+          borderRadius: 16,
+          boxShadow: "0 8px 30px rgba(0,0,0,0.08)",
+          padding: 24,
+        }}
+      >
+        <h1
+          style={{
+            margin: 0,
+            marginBottom: 18,
+            fontSize: 28,
+            lineHeight: 1.2,
+          }}
+        >
+          Тренажеры
+        </h1>
+
+        <div style={{ display: "grid", gap: 10 }}>
+          {TESTS.map((test) => {
+            const href = `/tests/${test.id}`;
+            return (
+              <a
+                key={test.id}
+                href={href}
+                style={{
+                  display: "block",
+                  border: "1px solid #d1d5db",
+                  borderRadius: 12,
+                  padding: "14px 16px",
+                  background: "#f9fafb",
+                  fontWeight: 600,
+                }}
+              >
+                {test.title}
+              </a>
+            );
+          })}
+        </div>
+      </section>
+    </main>
+  );
+}
