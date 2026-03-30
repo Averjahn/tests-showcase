@@ -12,6 +12,13 @@ set -e
 VPS="root@170.168.16.142"
 REMOTE_DIR="/opt/trainers-showcase"
 ARCHIVE_NAME="trainers-showcase-deploy.tar.gz"
+TMP_DIR="$(mktemp -d)"
+ARCHIVE_PATH="$TMP_DIR/$ARCHIVE_NAME"
+
+cleanup() {
+  rm -rf "$TMP_DIR"
+}
+trap cleanup EXIT
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -41,15 +48,28 @@ if [ ! -f .env ]; then
 fi
 
 echo "Собираю архив проекта..."
-rm -f "$ARCHIVE_NAME"
-tar --exclude=".git" --exclude="node_modules" --exclude=".next" --exclude="$ARCHIVE_NAME" -czf "$ARCHIVE_NAME" .
+tar --exclude=".git" --exclude="node_modules" --exclude=".next" -czf "$ARCHIVE_PATH" .
 
 echo "На VPS: удаляю старую папку проекта..."
-SSH -o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=20 "$VPS" "rm -rf $REMOTE_DIR && mkdir -p $REMOTE_DIR"
+SSH -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=30 -o ServerAliveCountMax=20 "$VPS" "rm -rf $REMOTE_DIR && mkdir -p $REMOTE_DIR"
+
+# Загрузка в /tmp, затем перенос: на части VPS запись в /opt падает (диск/inodes), а /tmp на другом томе.
+REMOTE_TMP_ARCHIVE="/tmp/$ARCHIVE_NAME.$$"
+
+echo "Проверка места на VPS..."
+SSH -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=30 -o ServerAliveCountMax=20 "$VPS" "df -h $REMOTE_DIR /tmp 2>/dev/null; echo '--- inodes ---'; df -i $REMOTE_DIR /tmp 2>/dev/null || df -i /"
 
 echo "Загружаю архив и .env на VPS..."
-SCP -o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=20 "$ARCHIVE_NAME" "$VPS:$REMOTE_DIR/$ARCHIVE_NAME"
-SCP -o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=20 .env "$VPS:$REMOTE_DIR/.env"
+if ! SCP -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=30 -o ServerAliveCountMax=20 "$ARCHIVE_PATH" "$VPS:$REMOTE_TMP_ARCHIVE"; then
+  echo ""
+  echo "Ошибка загрузки архива. На сервере проверь: df -h && df -i"
+  echo "Освободи место, например: docker system prune -af --volumes  (осторожно: удалит неиспользуемые образы и тома)"
+  exit 1
+fi
+SCP -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=30 -o ServerAliveCountMax=20 .env "$VPS:$REMOTE_DIR/.env"
+
+echo "Переношу архив в $REMOTE_DIR..."
+SSH -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=30 -o ServerAliveCountMax=20 "$VPS" "mv -f $REMOTE_TMP_ARCHIVE $REMOTE_DIR/$ARCHIVE_NAME"
 
 echo "Распаковываю и запускаю контейнер..."
 REMOTE_CMD='
@@ -60,7 +80,7 @@ REMOTE_CMD='
   docker compose -f docker-compose.vps.yml --env-file .env up -d --build &&
   docker compose -f docker-compose.vps.yml ps
 '
-SSH -o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=20 "$VPS" "$REMOTE_CMD"
+SSH -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=30 -o ServerAliveCountMax=20 "$VPS" "$REMOTE_CMD"
 
 echo ""
 echo "Готово. Открой: http://170.168.16.142:3010"

@@ -4,6 +4,7 @@ import { test02Main } from "../tests/test-02-main";
 import { test04Main } from "../tests/test-04-main";
 import { test13Main } from "../tests/test-13-main";
 import { test14Main } from "../tests/test-14-main";
+import { test24Main } from "../tests/test-24-main";
 
 const allTests: RegisteredTest[] = [
   test01Mame,
@@ -11,6 +12,7 @@ const allTests: RegisteredTest[] = [
   test04Main,
   test13Main,
   test14Main,
+  test24Main,
 ];
 
 export function getTestById(id: string): RegisteredTest | undefined {

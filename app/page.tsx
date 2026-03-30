@@ -4,6 +4,7 @@ const TESTS = [
   { id: "test-04-main", title: "Найти окончание слов" },
   { id: "test-01-mame", title: "Составление фразы по картинке" },
   { id: "test-14-main", title: "Фраза и картинка" },
+  { id: "test-24-main", title: "Составьте фразы" },
 ] as const;
 
 export default function HomePage() {
