@@ -1,0 +1,9 @@
+{
+  "id": "test-17-main",
+  "name": "Вставь слог в слово",
+  "description": "Выберите подходящий слог и вставьте его в пропуск в слове.",
+  "category": "1.2",
+  "estimatedTime": 360,
+  "difficulty": "medium"
+}
+

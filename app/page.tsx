@@ -4,6 +4,13 @@ const TESTS = [
   { id: "test-04-main", title: "Найти окончание слов" },
   { id: "test-01-mame", title: "Составление фразы по картинке" },
   { id: "test-14-main", title: "Фраза и картинка" },
+  { id: "test-15-main", title: "Прилагательное и существительное" },
+  { id: "test-17-main", title: "Вставь слог в слово" },
+  { id: "test-kod-06-dei", title: "КОД 06 — общее слово (действие)" },
+  { id: "test-kod-06-predmet", title: "КОД 06 — общее слово (предмет)" },
+  { id: "test-kod-06-priznak", title: "КОД 06 — общее слово (признак)" },
+  { id: "test-ponimanie-rechi", title: "Понимание речи" },
+  { id: "test-soberi-slovo", title: "Собери слово" },
   { id: "test-24-main", title: "Составьте фразы" },
 ] as const;
 
