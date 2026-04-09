@@ -11,4 +11,3 @@ export const LEVEL_DATA: Record<number, string[][]> = {
     ["чайная ложка", "красный мак"],
   ],
 };
-
