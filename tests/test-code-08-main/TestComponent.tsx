@@ -259,6 +259,7 @@ export default function TestCode08Main({ config, onComplete }: TestComponentProp
   return (
     <div style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
       <div style={headerBox}>
+        <div style={{ width: "100%", fontSize: 20, fontWeight: 900, color: "#0f172a" }}>{config.name}</div>
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
           <div style={{ fontWeight: 900, color: "#0f172a" }}>Глагол с приставками</div>
           <div style={{ width: 1, height: 22, background: "#e5e7eb" }} />

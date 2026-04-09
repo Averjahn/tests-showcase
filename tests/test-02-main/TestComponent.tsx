@@ -352,7 +352,8 @@ export default function Test02Main({ config, onComplete }: TestComponentProps) {
   }, [config.id, currentExerciseIndex, isExerciseComplete, onComplete]);
 
   return (
-    <div style={{ padding: '12px 0 0', maxWidth: 1100, margin: '0 auto', width: '100%' }}>
+    <div style={{ padding: 24, maxWidth: 1100, margin: '0 auto' }}>
+      {/* Header */}
       <div
         style={{
           background: '#ffffff',
@@ -368,31 +369,12 @@ export default function Test02Main({ config, onComplete }: TestComponentProps) {
           flexWrap: 'wrap',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              fontFamily: "monospace",
-              fontSize: 18,
-              fontWeight: 700,
-              color: "#0f172a",
-            }}
-          >
-            <span style={{ color: "#64748b", fontWeight: 600 }}>⏱</span>
-            {formatTime(Math.floor(elapsedMs / 1000))}
-          </div>
-          <div style={{ width: 1, height: 24, background: "#e5e7eb" }} />
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ fontSize: 13, color: "#6b7280" }}>Верно:</span>
-              <span style={{ fontWeight: 700, color: "#10b981" }}>{correctCount}</span>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ fontSize: 13, color: "#6b7280" }}>Ошибок:</span>
-              <span style={{ fontWeight: 700, color: "#ef4444" }}>{incorrectCount}</span>
-            </div>
+        <div style={{ width: '100%', fontSize: 20, fontWeight: 900, color: '#0f172a' }}>{config.name}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ fontWeight: 800, color: '#0f172a' }}>Словообразование</div>
+          <div style={{ width: 1, height: 22, background: '#e5e7eb' }} />
+          <div style={{ fontFamily: 'monospace', fontWeight: 800, color: '#0f172a' }}>
+            ⏱ {formatTime(Math.floor(elapsedMs / 1000))}
           </div>
         </div>
 
@@ -419,6 +401,11 @@ export default function Test02Main({ config, onComplete }: TestComponentProps) {
           </label>
 
           <div style={{ width: 1, height: 22, background: '#e5e7eb' }} />
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ fontWeight: 800, color: '#10b981' }}>Верно: {correctCount}</div>
+            <div style={{ fontWeight: 800, color: '#ef4444' }}>Ошибок: {incorrectCount}</div>
+          </div>
 
           <button
             type="button"

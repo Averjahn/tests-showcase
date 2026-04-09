@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import type { TestComponentProps } from "../shared/TestInterface";
+import type { TestComponentProps, TestResult } from "../shared/TestInterface";
 import { tasks } from "./tasks-data";
 
 function formatTime(totalSeconds: number) {
@@ -16,9 +16,7 @@ export default function Test17Main({ config, onComplete }: TestComponentProps) {
   const [selectedBlankIndex, setSelectedBlankIndex] = useState<number | null>(null);
   const [filledBlanks, setFilledBlanks] = useState<(string | null)[]>([]);
   const [correctWords, setCorrectWords] = useState<boolean[]>([]);
-  const [errorFlash, setErrorFlash] = useState<{ syllable?: boolean; blank?: number } | null>(
-    null,
-  );
+  const [errorFlash, setErrorFlash] = useState<{ syllable?: boolean; blank?: number } | null>(null);
   const [correctCount, setCorrectCount] = useState(0);
   const [errorCount, setErrorCount] = useState(0);
   const [seconds, setSeconds] = useState(0);
@@ -121,18 +119,13 @@ export default function Test17Main({ config, onComplete }: TestComponentProps) {
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="mx-auto max-w-4xl">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-xl bg-white p-4 shadow">
-          <div className="text-lg font-semibold">
-            Задание {currentTask.id} из {tasks.length}
-          </div>
+          <div className="w-full text-xl font-bold text-slate-900">{config.name}</div>
+          <div className="text-lg font-semibold">Задание {currentTask.id} из {tasks.length}</div>
           <div className="flex items-center gap-4">
             <span className="font-semibold text-green-600">✓ {correctCount}</span>
             <span className="font-semibold text-red-600">✗ {errorCount}</span>
             <span className="font-mono">{formatTime(seconds)}</span>
-            <button
-              type="button"
-              onClick={handleFinish}
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
-            >
+            <button type="button" onClick={handleFinish} className="rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700">
               Завершить тест
             </button>
           </div>
@@ -152,15 +145,7 @@ export default function Test17Main({ config, onComplete }: TestComponentProps) {
                   type="button"
                   onClick={() => !isUsed && handleSyllableClick(syl)}
                   disabled={isUsed}
-                  className={`min-w-[100px] rounded-xl border-2 px-6 py-4 text-xl font-bold ${
-                    isUsed ? "cursor-not-allowed opacity-30" : ""
-                  } ${(isSelected || highlight) ? "border-green-500 bg-green-50" : ""} ${
-                    hasError ? "border-red-500 bg-red-50" : ""
-                  } ${
-                    !isUsed && !isSelected && !hasError && !highlight
-                      ? "border-gray-300 hover:border-indigo-400"
-                      : ""
-                  }`}
+                  className={`min-w-[100px] rounded-xl border-2 px-6 py-4 text-xl font-bold ${isUsed ? "cursor-not-allowed opacity-30" : ""} ${(isSelected || highlight) ? "border-green-500 bg-green-50" : ""} ${hasError ? "border-red-500 bg-red-50" : ""} ${!isUsed && !isSelected && !hasError && !highlight ? "border-gray-300 hover:border-indigo-400" : ""}`}
                 >
                   {syl}
                 </button>
@@ -175,11 +160,7 @@ export default function Test17Main({ config, onComplete }: TestComponentProps) {
               return (
                 <div
                   key={idx}
-                  className={`rounded-xl border-2 p-4 ${
-                    isCorrect ? "border-green-500 bg-green-50" : ""
-                  } ${hasError ? "border-red-500 bg-red-50" : ""} ${
-                    !isCorrect && !hasError ? "border-gray-200" : ""
-                  }`}
+                  className={`rounded-xl border-2 p-4 ${isCorrect ? "border-green-500 bg-green-50" : ""} ${hasError ? "border-red-500 bg-red-50" : ""} ${!isCorrect && !hasError ? "border-gray-200" : ""}`}
                 >
                   <div className="flex flex-wrap items-center gap-2 text-lg">
                     <span>{word.text.split("__")[0]}</span>
@@ -187,17 +168,7 @@ export default function Test17Main({ config, onComplete }: TestComponentProps) {
                       type="button"
                       onClick={() => handleBlankClick(idx)}
                       disabled={filledBlanks[idx] !== null}
-                      className={`min-w-[80px] rounded-xl border-2 px-4 py-2 font-bold ${
-                        (selectedBlankIndex === idx || highlight)
-                          ? "border-green-500 bg-green-50"
-                          : ""
-                      } ${filledBlanks[idx] !== null ? "border-green-500 bg-green-100" : ""} ${
-                        hasError ? "border-red-500 bg-red-50" : ""
-                      } ${
-                        filledBlanks[idx] === null && !hasError && !highlight
-                          ? "border-gray-300 hover:border-indigo-400"
-                          : ""
-                      }`}
+                      className={`min-w-[80px] rounded-xl border-2 px-4 py-2 font-bold ${(selectedBlankIndex === idx || highlight) ? "border-green-500 bg-green-50" : ""} ${filledBlanks[idx] !== null ? "border-green-500 bg-green-100" : ""} ${hasError ? "border-red-500 bg-red-50" : ""} ${filledBlanks[idx] === null && !hasError && !highlight ? "border-gray-300 hover:border-indigo-400" : ""}`}
                     >
                       {filledBlanks[idx] ?? "__"}
                     </button>
@@ -211,4 +182,3 @@ export default function Test17Main({ config, onComplete }: TestComponentProps) {
     </div>
   );
 }
-

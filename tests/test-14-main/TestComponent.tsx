@@ -3,8 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import type { TestComponentProps, TestResult } from "../shared/TestInterface";
 import { TASKS } from "./tasks-data";
-import { useTestDebugShortcuts } from "../shared/useTestDebugShortcuts";
-import { useTestAutoRun } from "../shared/useTestAutoRun";
 
 function formatTime(sec: number) {
   const m = Math.floor(sec / 60);
@@ -68,12 +66,6 @@ export default function Test14Main({ config, onComplete }: TestComponentProps) {
     return () => clearInterval(t);
   }, []);
 
-  useEffect(() => {
-    if (!feedback) return;
-    const t = setTimeout(() => setFeedback(null), 1000);
-    return () => clearTimeout(t);
-  }, [feedback]);
-
   const checkMatch = (phrase: string, image: string) => {
     const isCorrect = phrase === image;
     setFeedback(isCorrect ? "correct" : "incorrect");
@@ -106,6 +98,7 @@ export default function Test14Main({ config, onComplete }: TestComponentProps) {
       setSelectedPhrase(null);
       setSelectedImage(null);
     }
+    setTimeout(() => setFeedback(null), 1000);
   };
 
   const onPhraseClick = (phrase: string) => {
@@ -136,113 +129,27 @@ export default function Test14Main({ config, onComplete }: TestComponentProps) {
     });
   };
 
-  const fillCorrect = () => {
-    if (!task || phrases.length === 0) return;
-    const ready = phrases.reduce<Record<string, string>>((acc, phrase) => {
-      acc[phrase] = phrase;
-      return acc;
-    }, {});
-    setMatches(ready);
-    setSelectedPhrase(null);
-    setSelectedImage(null);
-    setFeedback("correct");
-    setCorrectCount((c) => c + phrases.length);
-    setTimeout(() => {
-      if (currentTaskIndex >= TASKS.length - 1) {
-        if (completedRef.current) return;
-        completedRef.current = true;
-        onComplete({
-          testId: config.id,
-          answers: [],
-          totalTime: seconds * 1000,
-          correctCount: correctCount + phrases.length,
-          incorrectCount,
-          startedAt: startedAtRef.current,
-          completedAt: new Date().toISOString(),
-        });
-      } else {
-        setCurrentTaskIndex((i) => i + 1);
-      }
-    }, 300);
-  };
-
-  const fillRandom = () => {
-    if (!task || phrases.length === 0) return;
-    const mixedImages = [...images].sort(() => Math.random() - 0.5);
-    const ready = phrases.reduce<Record<string, string>>((acc, phrase, idx) => {
-      acc[phrase] = mixedImages[idx] || phrase;
-      return acc;
-    }, {});
-    setMatches(ready);
-    setSelectedPhrase(null);
-    setSelectedImage(null);
-    setFeedback("incorrect");
-    setIncorrectCount((c) => c + phrases.length);
-  };
-
-  useTestDebugShortcuts({
-    onFillRandom: fillRandom,
-    onFillCorrect: fillCorrect,
-  });
-
-  useTestAutoRun({
-    totalSteps: TASKS.length,
-    fillRandom,
-    fillCorrect,
-    submitCurrent: () => {},
-  });
-
   if (!task || phrases.length === 0) return null;
 
   return (
-    <div className="h-[100dvh] py-2 overflow-hidden" style={{ background: "#f8fafc" }}>
-      <div className="max-w-[1100px] h-full mx-auto">
-        <div
-          style={{
-            background: "#ffffff",
-            borderRadius: 16,
-            border: "1px solid #e5e7eb",
-            padding: 14,
-            boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
-            marginBottom: 10,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 12,
-            flexWrap: "wrap",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ fontFamily: "monospace", fontWeight: 700, color: "#0f172a" }}>
-              <span style={{ color: "#64748b" }}>⏱</span> {formatTime(seconds)}
-            </div>
-            <div style={{ width: 1, height: 20, background: "#e5e7eb" }} />
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ fontWeight: 700, color: "#10b981" }}>Верно: {correctCount}</div>
-              <div style={{ fontWeight: 700, color: "#ef4444" }}>Ошибок: {incorrectCount}</div>
-            </div>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div
-              style={{
-                padding: "8px 12px",
-                borderRadius: 10,
-                border: "1px solid #e5e7eb",
-                background: "#ffffff",
-                fontWeight: 700,
-              }}
-            >
-              {currentTaskIndex + 1} / {TASKS.length}
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-xl bg-white p-4 shadow">
+          <div className="w-full text-xl font-bold text-slate-900">{config.name}</div>
+          <div className="font-semibold">Задание {currentTaskIndex + 1} из {TASKS.length}</div>
+          <div className="flex items-center gap-4">
+            <span className="text-green-600 font-semibold">✓ {correctCount}</span>
+            <span className="text-red-600 font-semibold">✗ {incorrectCount}</span>
+            <span className="font-mono">{formatTime(seconds)}</span>
             <button type="button" onClick={handleFinish} className="rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700">
-              Завершить
+              Завершить тест
             </button>
           </div>
         </div>
 
-        <p className="mb-2 text-center text-gray-600">Подберите подпись к картинке</p>
+        <p className="mb-4 text-center text-gray-600">Подберите подпись к картинке</p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 max-h-[calc(100dvh-140px)] overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <h3 className="font-medium text-gray-700">Фразы</h3>
             {phrases.map((p) => (
@@ -251,7 +158,7 @@ export default function Test14Main({ config, onComplete }: TestComponentProps) {
                 type="button"
                 onClick={() => onPhraseClick(p)}
                 disabled={!!matches[p]}
-                className={`w-full rounded-xl border-2 p-3 text-left ${selectedPhrase === p ? "border-blue-500 bg-blue-50" : "border-gray-200"} ${matches[p] ? "opacity-60 cursor-default" : "hover:border-indigo-300"}`}
+                className={`w-full rounded-xl border-2 p-4 text-left ${selectedPhrase === p ? "border-blue-500 bg-blue-50" : "border-gray-200"} ${matches[p] ? "opacity-60 cursor-default" : "hover:border-indigo-300"}`}
               >
                 {p}
               </button>
@@ -265,7 +172,7 @@ export default function Test14Main({ config, onComplete }: TestComponentProps) {
                 type="button"
                 onClick={() => onImageClick(img)}
                 disabled={Object.values(matches).includes(img)}
-                className={`w-full rounded-xl border-2 p-3 text-left ${selectedImage === img ? "border-blue-500 bg-blue-50" : "border-gray-200"} ${Object.values(matches).includes(img) ? "opacity-60 cursor-default" : "hover:border-indigo-300"}`}
+                className={`w-full rounded-xl border-2 p-4 text-left ${selectedImage === img ? "border-blue-500 bg-blue-50" : "border-gray-200"} ${Object.values(matches).includes(img) ? "opacity-60 cursor-default" : "hover:border-indigo-300"}`}
               >
                 {shouldRenderImageCard(img) ? (
                   <div className="relative rounded-lg cursor-pointer transition-all">
@@ -275,7 +182,7 @@ export default function Test14Main({ config, onComplete }: TestComponentProps) {
                       width={200}
                       height={200}
                       decoding="async"
-                      className="w-full max-h-[24dvh] object-contain rounded"
+                      className="w-full aspect-square object-contain rounded"
                       src={imageCardSrcByLabel[img]}
                     />
                   </div>

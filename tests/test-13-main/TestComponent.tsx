@@ -3,8 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import type { TestComponentProps, TestResult } from "../shared/TestInterface";
 import { TASKS, VOWELS } from "./tasks-data";
-import { useTestDebugShortcuts } from "../shared/useTestDebugShortcuts";
-import { useTestAutoRun } from "../shared/useTestAutoRun";
 
 const level = 1;
 const tasks = TASKS[level] ?? [];
@@ -112,53 +110,9 @@ export default function Test13Main({ config, onComplete }: TestComponentProps) {
     });
   };
 
-  const fillCorrect = () => {
-    if (!currentTask) return;
-    setCorrectedWords([...currentTask.words]);
-    setWordStates(new Array(wordsToShow).fill("correct"));
-    setSelectedLetter(null);
-    setSelectedVowel(null);
-    setShowSuccess(true);
-    setTimeout(() => {
-      if (currentTaskIndex < tasks.length - 1) setCurrentTaskIndex((i) => i + 1);
-      else setIsCompleted(true);
-    }, 300);
-  };
-
-  const fillRandom = () => {
-    if (!currentTask) return;
-    const randomWords = currentTask.words.map((word) => {
-      const chars = word.split("");
-      for (let i = 0; i < chars.length; i++) {
-        if (!currentTask.corrections[chars[i]]) continue;
-        chars[i] = VOWELS[Math.floor(Math.random() * VOWELS.length)] || chars[i];
-      }
-      return chars.join("");
-    });
-    setCorrectedWords(randomWords);
-    setWordStates(new Array(wordsToShow).fill("normal"));
-    setSelectedLetter(null);
-    setSelectedVowel(null);
-    setShowSuccess(false);
-  };
-
-  useTestDebugShortcuts({
-    onFillRandom: fillRandom,
-    onFillCorrect: fillCorrect,
-    disabled: isCompleted,
-  });
-
-  useTestAutoRun({
-    totalSteps: tasks.length,
-    fillRandom,
-    fillCorrect,
-    submitCurrent: () => {},
-    disabled: isCompleted,
-  });
-
   if (isCompleted) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: "#f8fafc" }}>
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="bg-white rounded-2xl p-8 text-center max-w-md shadow-lg">
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Упражнение завершено!</h2>
           <p className="text-gray-600 mb-4">Верных: {correctAnswers} · Неверных: {incorrectAnswers} · Время: {formatTime(elapsedTime)}</p>
@@ -175,59 +129,29 @@ export default function Test13Main({ config, onComplete }: TestComponentProps) {
   const isVowelPanelVisible = selectedLetter !== null || selectedVowel !== null;
 
   return (
-    <div className="h-[100dvh] flex flex-col overflow-hidden" style={{ background: "#f8fafc" }}>
-      <div style={{ maxWidth: 1100, margin: "0 auto", width: "100%", paddingTop: 12 }}>
-        <div
-          style={{
-            background: "#ffffff",
-            borderRadius: 16,
-            border: "1px solid #e5e7eb",
-            padding: 14,
-            boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
-            marginBottom: 10,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 12,
-            flexWrap: "wrap",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ fontFamily: "monospace", fontWeight: 700, color: "#0f172a" }}>
-              <span style={{ color: "#64748b" }}>⏱</span> {formatTime(elapsedTime)}
-            </div>
-            <div style={{ width: 1, height: 20, background: "#e5e7eb" }} />
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ fontWeight: 700, color: "#10b981" }}>Верно: {correctAnswers}</div>
-              <div style={{ fontWeight: 700, color: "#ef4444" }}>Ошибок: {incorrectAnswers}</div>
-            </div>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div
-              style={{
-                padding: "8px 12px",
-                borderRadius: 10,
-                border: "1px solid #e5e7eb",
-                background: "#ffffff",
-                fontWeight: 700,
-              }}
-            >
-              {currentTaskIndex + 1} / {tasks.length}
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="bg-white shadow-sm p-4">
+        <div className="max-w-6xl mx-auto flex justify-between items-center flex-wrap gap-4">
+          <div className="w-full text-xl font-bold text-slate-900">{config.name}</div>
+          <div className="text-lg font-medium">Задание {currentTaskIndex + 1} из {tasks.length}</div>
+          <div className="flex gap-6 text-sm">
+            <span className="text-green-600 font-semibold">✓ {correctAnswers}</span>
+            <span className="text-red-600 font-semibold">✗ {incorrectAnswers}</span>
+            <span className="font-mono">⏱ {formatTime(elapsedTime)}</span>
             <button type="button" onClick={handleFinish} className="rounded-lg bg-indigo-600 px-4 py-2 text-white text-sm hover:bg-indigo-700">
-              Завершить
+              Завершить тест
             </button>
           </div>
         </div>
       </div>
 
-      <div className="max-w-[1100px] mx-auto w-full flex-1 py-1 overflow-hidden">
-        <div className="flex gap-4 flex-wrap md:flex-nowrap items-start h-full">
+      <div className="max-w-6xl mx-auto p-8">
+        <div className="flex gap-8 flex-wrap">
           <div className="flex-1 min-w-[280px]">
-            <div className="flex justify-center gap-4 mb-4 flex-wrap">
+            <div className="flex justify-center gap-8 mb-8">
               {currentTask.words.slice(0, wordsToShow).map((word, wordIndex) => (
                 <div key={wordIndex} className="text-center">
-                  <img src={currentTask.images[wordIndex] || "/placeholder.svg"} alt="" className="w-24 h-24 md:w-28 md:h-28 object-cover rounded-lg shadow-md mb-3 mx-auto bg-gray-100" />
+                  <img src={currentTask.images[wordIndex] || "/placeholder.svg"} alt="" className="w-32 h-32 object-cover rounded-lg shadow-md mb-4 mx-auto bg-gray-100" />
                   <div className="flex gap-1 justify-center flex-wrap">
                     {correctedWords[wordIndex]?.split("").map((letter, letterIndex) => {
                       const isIncorrect = !!currentTask.corrections[letter];
@@ -237,7 +161,7 @@ export default function Test13Main({ config, onComplete }: TestComponentProps) {
                           key={letterIndex}
                           type="button"
                           onClick={() => handleLetterClick(wordIndex, letterIndex)}
-                          className={`w-9 h-9 md:w-10 md:h-10 border-2 rounded flex items-center justify-center font-bold text-base md:text-lg ${isSelected ? "border-blue-500 bg-blue-100" : "border-gray-300"} ${wordStates[wordIndex] === "correct" ? "bg-green-100 border-green-500" : ""} ${wordStates[wordIndex] === "incorrect" ? "bg-red-100 border-red-500" : ""}`}
+                          className={`w-10 h-10 border-2 rounded flex items-center justify-center font-bold text-lg ${isSelected ? "border-blue-500 bg-blue-100" : "border-gray-300"} ${wordStates[wordIndex] === "correct" ? "bg-green-100 border-green-500" : ""} ${wordStates[wordIndex] === "incorrect" ? "bg-red-100 border-red-500" : ""}`}
                         >
                           {letter}
                         </button>
@@ -248,7 +172,7 @@ export default function Test13Main({ config, onComplete }: TestComponentProps) {
               ))}
             </div>
           </div>
-          <div className="w-full md:w-44">
+          <div className="w-48">
             <div className={`p-4 rounded-xl border-2 ${isVowelPanelVisible ? "ring-2 ring-blue-500 bg-blue-50 border-blue-200" : "border-gray-200 bg-white"}`}>
               <h3 className="font-medium mb-4 text-center">Гласные</h3>
               <div className="grid grid-cols-2 gap-2">

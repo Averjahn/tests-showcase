@@ -240,6 +240,7 @@ export default function Test29Main({ config, onComplete }: TestComponentProps) {
     <div className="min-h-screen bg-gray-50 p-3 md:p-8">
       <div className="mx-auto max-w-5xl">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-xl bg-white p-4 shadow">
+          <div className="w-full text-xl font-bold text-slate-900">{config.name}</div>
           <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"

@@ -2,15 +2,14 @@
  * Экспорт теста для регистрации в системе
  */
 
-import TestComponent from "./TestComponent";
-import testConfig from "./test-config.json";
-import type { RegisteredTest } from "../registry";
+import TestComponent from './TestComponent';
+import testConfig from './test-config.json';
+import type { RegisteredTest } from '../registry';
 
 export const test17Main: RegisteredTest = {
-  id: "test-17-main",
-  config: testConfig as RegisteredTest["config"],
+  id: 'test-17-main',
+  config: testConfig as RegisteredTest['config'],
   component: TestComponent,
 };
 
 export default test17Main;
-

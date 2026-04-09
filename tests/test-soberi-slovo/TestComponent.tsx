@@ -9,4 +9,3 @@ const TestComponent = createPhraseToImageTestComponent(tasks);
 export default function TestSoberiSlovo(props: TestComponentProps) {
   return <TestComponent {...props} />;
 }
-

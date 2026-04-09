@@ -297,7 +297,7 @@ export default function Test04Main({ config, onComplete }: TestComponentProps) {
   };
 
   return (
-    <div style={{ padding: "12px 0 0", maxWidth: 1100, margin: "0 auto", width: "100%" }}>
+    <div style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
       <div
         style={{
           background: "#ffffff",
@@ -313,35 +313,17 @@ export default function Test04Main({ config, onComplete }: TestComponentProps) {
           flexWrap: "wrap",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              fontFamily: "monospace",
-              fontSize: 18,
-              fontWeight: 700,
-              color: "#0f172a",
-            }}
-          >
-            <span style={{ color: "#64748b", fontWeight: 600 }}>⏱</span>
-            {Math.floor(elapsedMs / 1000)}с
-          </div>
-          <div style={{ width: 1, height: 24, background: "#e5e7eb" }} />
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ fontSize: 13, color: "#6b7280" }}>Верно:</span>
-              <span style={{ fontWeight: 700, color: "#10b981" }}>{correctCount}</span>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ fontSize: 13, color: "#6b7280" }}>Ошибок:</span>
-              <span style={{ fontWeight: 700, color: "#ef4444" }}>{incorrectCount}</span>
-            </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ fontWeight: 900, color: "#0f172a" }}>С 3.3 — Найти окончание слов</div>
+          <div style={{ width: 1, height: 22, background: "#e5e7eb" }} />
+          <div style={{ fontFamily: "monospace", fontWeight: 900, color: "#0f172a" }}>
+            ⏱ {Math.floor(elapsedMs / 1000)}с
           </div>
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          <div style={{ fontWeight: 900, color: "#10b981" }}>Верно: {correctCount}</div>
+          <div style={{ fontWeight: 900, color: "#ef4444" }}>Ошибок: {incorrectCount}</div>
           <div
             style={{
               padding: "8px 12px",

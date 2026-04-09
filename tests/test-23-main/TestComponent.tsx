@@ -285,6 +285,7 @@ export default function Test23Main({ config, onComplete }: TestComponentProps) {
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="mx-auto max-w-4xl">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-xl bg-white p-4 shadow">
+          <div className="w-full text-xl font-bold text-slate-900">{config.name}</div>
           <div className="text-lg font-semibold">
             Задание {currentTask.id} из {tasks.length}
           </div>

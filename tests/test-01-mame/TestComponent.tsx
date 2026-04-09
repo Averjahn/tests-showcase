@@ -355,19 +355,7 @@ export default function Test01Mame({ config, onComplete }: TestComponentProps) {
   };
 
   return (
-    <div
-      style={{
-        height: "100dvh",
-        maxWidth: 1100,
-        margin: "0 auto",
-        width: "100%",
-        paddingTop: 12,
-        overflow: "hidden",
-        display: "flex",
-        flexDirection: "column",
-        background: "#f8fafc",
-      }}
-    >
+    <div style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
       {/* Верхнее меню как в оригинальном RAND */}
       <div
         style={{
@@ -484,20 +472,18 @@ export default function Test01Mame({ config, onComplete }: TestComponentProps) {
           borderRadius: 16,
           overflow: "hidden",
           boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
-          flex: 1,
-          minHeight: 0,
         }}
       >
-        <div style={{ position: 'relative', width: '100%', aspectRatio: '16/7', background: '#ffffff' }}>
+        <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', background: '#ffffff' }}>
           <MediaViewer src={phrase.mediaPath} alt="Иллюстрация" />
         </div>
 
-        <div style={{ padding: 14 }}>
-          <div style={{ marginBottom: 10 }}>
+        <div style={{ padding: 20 }}>
+          <div style={{ marginBottom: 16 }}>
             <div style={{ textAlign: 'center', color: '#64748b', fontSize: 14, marginBottom: 10 }}>
               Выберите слово:
             </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center' }}>
               {availableWords.map((word, idx) => {
                 const active = selectedWord === word;
                 return (
@@ -511,8 +497,8 @@ export default function Test01Mame({ config, onComplete }: TestComponentProps) {
                       border: `1px solid ${active ? '#00CED1' : '#e5e7eb'}`,
                       background: active ? '#00CED1' : '#ffffff',
                       color: active ? '#ffffff' : '#0f172a',
-                      padding: '8px 12px',
-                      fontSize: 15,
+                      padding: '10px 14px',
+                      fontSize: 16,
                       fontWeight: 700,
                       cursor: isChecking ? 'default' : 'pointer',
                     }}
@@ -524,7 +510,7 @@ export default function Test01Mame({ config, onComplete }: TestComponentProps) {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14 }}>
             <div>
               <div style={{ textAlign: 'center', color: '#64748b', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>
                 КТО?
@@ -553,6 +539,9 @@ export default function Test01Mame({ config, onComplete }: TestComponentProps) {
             </div>
           </div>
 
+          <div style={{ marginTop: 16, textAlign: 'center', color: '#64748b', fontSize: 13 }}>
+            Попытка: <strong style={{ color: '#0f172a' }}>{attemptCount + 1}</strong>
+          </div>
         </div>
       </div>
     </div>
