@@ -1,8 +1,0 @@
-{
-  "id": "test-16-main",
-  "name": "Глагол к картинке",
-  "description": "Подберите подходящий глагол к картинке (субъект + действие).",
-  "category": "1.3",
-  "estimatedTime": 300,
-  "difficulty": "easy"
-}

@@ -3,7 +3,6 @@ import { test01Mame } from "../tests/test-01-mame";
 import { test02Main } from "../tests/test-02-main";
 import { test04Main } from "../tests/test-04-main";
 import { test15Main } from "../tests/test-15-main";
-import { test16Main } from "../tests/test-16-main";
 import { test13Main } from "../tests/test-13-main";
 import { test14Main } from "../tests/test-14-main";
 import { test17Main } from "../tests/test-17-main";
@@ -27,13 +26,13 @@ import { test27Main } from "../tests/test-27-main";
 import { test28Main } from "../tests/test-28-main";
 import { test29Main } from "../tests/test-29-main";
 import { test30Main } from "../tests/test-30-main";
+import { test31Main } from "../tests/test-31-main";
 
 const allTests: RegisteredTest[] = [
   test01Mame,
   test02Main,
   test04Main,
   test15Main,
-  test16Main,
   test13Main,
   test14Main,
   test17Main,
@@ -57,7 +56,12 @@ const allTests: RegisteredTest[] = [
   test28Main,
   test29Main,
   test30Main,
+  test31Main,
 ];
+
+export function getAllTests(): RegisteredTest[] {
+  return allTests;
+}
 
 export function getTestById(id: string): RegisteredTest | undefined {
   return allTests.find((test) => test.id === id);

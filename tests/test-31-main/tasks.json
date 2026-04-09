@@ -1,0 +1,152 @@
+[
+  {
+    "id": 1,
+    "image": "1.png",
+    "word": { "text": "Молния", "audio": "word_01.mp3" },
+    "actions": [
+      { "text": "сверкает", "audio": "action_01_01.mp3", "is_correct": true },
+      { "text": "пишет", "audio": "action_01_02.mp3", "is_correct": false },
+      { "text": "горит", "audio": "action_01_03.mp3", "is_correct": false }
+    ]
+  },
+  {
+    "id": 2,
+    "image": "2.png",
+    "word": { "text": "Часы", "audio": "word_02.mp3" },
+    "actions": [
+      { "text": "тикают", "audio": "action_02_01.mp3", "is_correct": true },
+      { "text": "прыгают", "audio": "action_02_02.mp3", "is_correct": false },
+      { "text": "гремят", "audio": "action_02_03.mp3", "is_correct": false }
+    ]
+  },
+  {
+    "id": 3,
+    "image": "3.png",
+    "word": { "text": "Спортсмен", "audio": "word_03.mp3" },
+    "actions": [
+      { "text": "прыгает", "audio": "action_03_01.mp3", "is_correct": true },
+      { "text": "решает", "audio": "action_03_02.mp3", "is_correct": false },
+      { "text": "скачет", "audio": "action_03_03.mp3", "is_correct": false }
+    ]
+  },
+  {
+    "id": 4,
+    "image": "4.png",
+    "word": { "text": "Дождь", "audio": "word_04.mp3" },
+    "actions": [
+      { "text": "льёт", "audio": "action_04_01.mp3", "is_correct": true },
+      { "text": "красит", "audio": "action_04_02.mp3", "is_correct": false },
+      { "text": "дует", "audio": "action_04_03.mp3", "is_correct": false }
+    ]
+  },
+  {
+    "id": 5,
+    "image": "5.png",
+    "word": { "text": "Автобус", "audio": "word_05.mp3" },
+    "actions": [
+      { "text": "едет", "audio": "action_05_01.mp3", "is_correct": true },
+      { "text": "скачет", "audio": "action_05_02.mp3", "is_correct": false },
+      { "text": "плывёт", "audio": "action_05_03.mp3", "is_correct": false }
+    ]
+  },
+  {
+    "id": 6,
+    "image": "6.png",
+    "word": { "text": "Волк", "audio": "word_06.mp3" },
+    "actions": [
+      { "text": "воет", "audio": "action_06_01.mp3", "is_correct": true },
+      { "text": "рисует", "audio": "action_06_02.mp3", "is_correct": false },
+      { "text": "лает", "audio": "action_06_03.mp3", "is_correct": false }
+    ]
+  },
+  {
+    "id": 7,
+    "image": "7.png",
+    "word": { "text": "Собака", "audio": "word_07.mp3" },
+    "actions": [
+      { "text": "лает", "audio": "action_07_01.mp3", "is_correct": true },
+      { "text": "готовит", "audio": "action_07_02.mp3", "is_correct": false },
+      { "text": "мяукает", "audio": "action_07_03.mp3", "is_correct": false }
+    ]
+  },
+  {
+    "id": 8,
+    "image": "8.png",
+    "word": { "text": "Бабочка", "audio": "word_08.mp3" },
+    "actions": [
+      { "text": "летает", "audio": "action_08_01.mp3", "is_correct": true },
+      { "text": "ходит", "audio": "action_08_02.mp3", "is_correct": false },
+      { "text": "поёт", "audio": "action_08_03.mp3", "is_correct": false }
+    ]
+  },
+  {
+    "id": 9,
+    "image": "9.png",
+    "word": { "text": "Петух", "audio": "word_09.mp3" },
+    "actions": [
+      { "text": "кукарекает", "audio": "action_09_01.mp3", "is_correct": true },
+      { "text": "читает", "audio": "action_09_02.mp3", "is_correct": false },
+      { "text": "рычит", "audio": "action_09_03.mp3", "is_correct": false }
+    ]
+  },
+  {
+    "id": 10,
+    "image": "10.png",
+    "word": { "text": "Рыба", "audio": "word_10.mp3" },
+    "actions": [
+      { "text": "плавает", "audio": "action_10_01.mp3", "is_correct": true },
+      { "text": "едет", "audio": "action_10_02.mp3", "is_correct": false },
+      { "text": "тонет", "audio": "action_10_03.mp3", "is_correct": false }
+    ]
+  },
+  {
+    "id": 11,
+    "image": "11.png",
+    "word": { "text": "Солнце", "audio": "word_11.mp3" },
+    "actions": [
+      { "text": "светит", "audio": "action_11_01.mp3", "is_correct": true },
+      { "text": "спит", "audio": "action_11_02.mp3", "is_correct": false },
+      { "text": "моросит", "audio": "action_11_03.mp3", "is_correct": false }
+    ]
+  },
+  {
+    "id": 12,
+    "image": "12.png",
+    "word": { "text": "Учитель", "audio": "word_12.mp3" },
+    "actions": [
+      { "text": "учит", "audio": "action_12_01.mp3", "is_correct": true },
+      { "text": "стрижёт", "audio": "action_12_02.mp3", "is_correct": false },
+      { "text": "воспитывает", "audio": "action_12_03.mp3", "is_correct": false }
+    ]
+  },
+  {
+    "id": 13,
+    "image": "13.png",
+    "word": { "text": "Вода", "audio": "word_13.mp3" },
+    "actions": [
+      { "text": "течёт", "audio": "action_13_01.mp3", "is_correct": true },
+      { "text": "прыгает", "audio": "action_13_02.mp3", "is_correct": false },
+      { "text": "моет", "audio": "action_13_03.mp3", "is_correct": false }
+    ]
+  },
+  {
+    "id": 14,
+    "image": "14.png",
+    "word": { "text": "Лягушка", "audio": "word_14.mp3" },
+    "actions": [
+      { "text": "квакает", "audio": "action_14_01.mp3", "is_correct": true },
+      { "text": "работает", "audio": "action_14_02.mp3", "is_correct": false },
+      { "text": "жужжит", "audio": "action_14_03.mp3", "is_correct": false }
+    ]
+  },
+  {
+    "id": 15,
+    "image": "15.png",
+    "word": { "text": "Художник", "audio": "word_15.mp3" },
+    "actions": [
+      { "text": "рисует", "audio": "action_15_01.mp3", "is_correct": true },
+      { "text": "шьёт", "audio": "action_15_02.mp3", "is_correct": false },
+      { "text": "чертит", "audio": "action_15_03.mp3", "is_correct": false }
+    ]
+  }
+]

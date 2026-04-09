@@ -1,35 +1,38 @@
-const TESTS = [
-  { id: "test-02-main", title: "Добавить часть слова (начало/конец)" },
-  { id: "test-13-main", title: "Исправь букву в слове" },
-  { id: "test-04-main", title: "Найти окончание слов" },
-  { id: "test-01-mame", title: "Составление фразы по картинке" },
-  { id: "test-14-main", title: "Фраза и картинка" },
-  { id: "test-15-main", title: "Прилагательное и существительное" },
-  { id: "test-16-main", title: "Глагол к картинке" },
-  { id: "test-17-main", title: "Вставь слог в слово" },
-  { id: "test-code-08-main", title: "Глагол с приставками" },
-  { id: "test-code-dei", title: "Распределить слова (действия)" },
-  { id: "test-code-priz", title: "Распределить слова (признаки)" },
-  { id: "test-kod-07-main", title: "КОД 07 — словосочетания (действия)" },
-  { id: "test-kod-09-main", title: "КОД 09 — анаграммы" },
-  { id: "test-kod-06-dei", title: "КОД 06 — общее слово (действие)" },
-  { id: "test-kod-06-predmet", title: "КОД 06 — общее слово (предмет)" },
-  { id: "test-kod-06-priznak", title: "КОД 06 — общее слово (признак)" },
-  { id: "test-ponimanie-rechi", title: "Понимание речи" },
-  { id: "test-soberi-slovo", title: "Собери слово" },
-  { id: "test-21-main", title: "Вставьте пропущенные буквы" },
-  { id: "test-22-main", title: "Вставьте предлоги" },
-  { id: "test-23-main", title: "Найдите слова на букву М" },
-  { id: "test-24-main", title: "Составьте фразы" },
-  { id: "test-25-main", title: "Покажите, где…" },
-  { id: "test-26-main", title: "Покажите…" },
-  { id: "test-27-main", title: "Составь фразу" },
-  { id: "test-28-main", title: "Подбери слово к картинке" },
-  { id: "test-29-main", title: "Подбери глагол" },
-  { id: "test-30-main", title: "Выбери предмет по признаку" },
-] as const;
+import { promises as fs } from "fs";
+import path from "path";
 
-export default function HomePage() {
+type TestListItem = { id: string; title: string };
+
+async function loadTestsFromConfigs(): Promise<TestListItem[]> {
+  const testsRoot = path.join(process.cwd(), "tests");
+  const entries = await fs.readdir(testsRoot, { withFileTypes: true });
+
+  const items: TestListItem[] = [];
+
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    if (!entry.name.startsWith("test-")) continue;
+
+    const configPath = path.join(testsRoot, entry.name, "test-config.json");
+
+    try {
+      const raw = await fs.readFile(configPath, "utf-8");
+      const json = JSON.parse(raw) as { id?: string; name?: string };
+      const id = json.id ?? entry.name;
+      const title = json.name ?? id;
+      items.push({ id, title });
+    } catch {
+      // ignore folders without test-config.json
+    }
+  }
+
+  items.sort((a, b) => a.id.localeCompare(b.id, "ru"));
+  return items;
+}
+
+export default async function HomePage() {
+  const tests = await loadTestsFromConfigs();
+
   return (
     <main
       style={{
@@ -63,7 +66,7 @@ export default function HomePage() {
         </h1>
 
         <div style={{ display: "grid", gap: 10 }}>
-          {TESTS.map((test) => {
+          {tests.map((test, idx) => {
             const href = `/tests/${test.id}`;
             return (
               <a
@@ -78,7 +81,7 @@ export default function HomePage() {
                   fontWeight: 600,
                 }}
               >
-                {test.title}
+                {idx + 1}. {test.title}
               </a>
             );
           })}
