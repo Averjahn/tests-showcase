@@ -1,0 +1,9 @@
+{
+  "id": "test-kod-09-main",
+  "name": "КОД 09 — Анаграммы",
+  "description": "Переставьте буквы в слове, чтобы получилось другое слово (иногда — два).",
+  "category": "Анаграммы",
+  "estimatedTime": 240,
+  "difficulty": "medium"
+}
+

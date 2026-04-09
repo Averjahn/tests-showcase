@@ -1,0 +1,339 @@
+[
+  {
+    "pairId": 1,
+    "cards": [
+      {
+        "id": 1,
+        "name": "Фонарный столб",
+        "image": "1.png",
+        "audio": "1.mp3",
+        "trueCharacteristic": "Высокий",
+        "characteristics": ["Высокий", "Большой", "Горячий"]
+      },
+      {
+        "id": 2,
+        "name": "Куст",
+        "image": "2.png",
+        "audio": "2.mp3",
+        "trueCharacteristic": "Низкий",
+        "characteristics": ["Низкий", "Тихий", "Старый"]
+      }
+    ]
+  },
+  {
+    "pairId": 2,
+    "cards": [
+      {
+        "id": 3,
+        "name": "Чистые руки",
+        "image": "3.png",
+        "audio": "3.mp3",
+        "trueCharacteristic": "Чистые",
+        "characteristics": ["Чистые", "Новые", "Хорошие"]
+      },
+      {
+        "id": 4,
+        "name": "Грязные руки",
+        "image": "4.png",
+        "audio": "4.mp3",
+        "trueCharacteristic": "Грязные",
+        "characteristics": ["Грязные", "Плохие", "Теплые"]
+      }
+    ]
+  },
+  {
+    "pairId": 3,
+    "cards": [
+      {
+        "id": 5,
+        "name": "Веревка в мотке",
+        "image": "5.png",
+        "audio": "5.mp3",
+        "trueCharacteristic": "Длинная",
+        "characteristics": ["Длинная", "Большая", "Пустая"]
+      },
+      {
+        "id": 6,
+        "name": "Ленточка/тесма",
+        "image": "6.png",
+        "audio": "6.mp3",
+        "trueCharacteristic": "Короткая",
+        "characteristics": ["Короткая", "Маленькая", "Сухая"]
+      }
+    ]
+  },
+  {
+    "pairId": 4,
+    "cards": [
+      {
+        "id": 7,
+        "name": "Тонкое дерево (осина)",
+        "image": "7.png",
+        "audio": "7.mp3",
+        "trueCharacteristic": "Тонкое",
+        "characteristics": ["Тонкое", "Маленькое", "Круглое"]
+      },
+      {
+        "id": 8,
+        "name": "Толстое дерево (дуб)",
+        "image": "8.png",
+        "audio": "8.mp3",
+        "trueCharacteristic": "Толстое",
+        "characteristics": ["Толстое", "Широкое", "Высокое"]
+      }
+    ]
+  },
+  {
+    "pairId": 5,
+    "cards": [
+      {
+        "id": 9,
+        "name": "Дедушка",
+        "image": "9.png",
+        "audio": "9.mp3",
+        "trueCharacteristic": "Старый",
+        "characteristics": ["Старый", "Ветхий", "Домашний"]
+      },
+      {
+        "id": 10,
+        "name": "Юноша",
+        "image": "10.png",
+        "audio": "10.mp3",
+        "trueCharacteristic": "Молодой",
+        "characteristics": ["Молодой", "Маленький", "Сложный"]
+      }
+    ]
+  },
+  {
+    "pairId": 6,
+    "cards": [
+      {
+        "id": 11,
+        "name": "Гиря",
+        "image": "11.png",
+        "audio": "11.mp3",
+        "trueCharacteristic": "Тяжелая",
+        "characteristics": ["Тяжелая", "Сложная", "Пустая"]
+      },
+      {
+        "id": 12,
+        "name": "Вата",
+        "image": "12.png",
+        "audio": "12.mp3",
+        "trueCharacteristic": "Лёгкая",
+        "characteristics": ["Лёгкая", "Простая", "Плоская"]
+      }
+    ]
+  },
+  {
+    "pairId": 7,
+    "cards": [
+      {
+        "id": 13,
+        "name": "Костёр",
+        "image": "13.png",
+        "audio": "13.mp3",
+        "trueCharacteristic": "Горячий",
+        "characteristics": ["Горячий", "Летний", "Дикий"]
+      },
+      {
+        "id": 14,
+        "name": "Лёд",
+        "image": "14.png",
+        "audio": "14.mp3",
+        "trueCharacteristic": "Холодный",
+        "characteristics": ["Холодный", "Зимний", "Лесной"]
+      }
+    ]
+  },
+  {
+    "pairId": 8,
+    "cards": [
+      {
+        "id": 15,
+        "name": "Острый угол",
+        "image": "15.png",
+        "audio": "15.mp3",
+        "trueCharacteristic": "Острый",
+        "characteristics": ["Острый", "Ясный", "Школьный"]
+      },
+      {
+        "id": 16,
+        "name": "Тупой угол",
+        "image": "16.png",
+        "audio": "16.mp3",
+        "trueCharacteristic": "Тупой",
+        "characteristics": ["Тупой", "Широкий", "Короткий"]
+      }
+    ]
+  },
+  {
+    "pairId": 9,
+    "cards": [
+      {
+        "id": 17,
+        "name": "Корзинка с горкой грибов",
+        "image": "17.png",
+        "audio": "17.mp3",
+        "trueCharacteristic": "Полная",
+        "characteristics": ["Полная", "Вкусная", "Ровная"]
+      },
+      {
+        "id": 18,
+        "name": "Пустая корзинка",
+        "image": "18.png",
+        "audio": "18.mp3",
+        "trueCharacteristic": "Пустая",
+        "characteristics": ["Пустая", "Низкая", "Соленая"]
+      }
+    ]
+  },
+  {
+    "pairId": 10,
+    "cards": [
+      {
+        "id": 19,
+        "name": "Гладкий кот",
+        "image": "19.png",
+        "audio": "19.mp3",
+        "trueCharacteristic": "Гладкий",
+        "characteristics": ["Гладкий", "Плоский", "Черствый"]
+      },
+      {
+        "id": 20,
+        "name": "Пушистый кот",
+        "image": "20.png",
+        "audio": "20.mp3",
+        "trueCharacteristic": "Пушистый",
+        "characteristics": ["Пушистый", "Мягкий", "Звонкий"]
+      }
+    ]
+  },
+  {
+    "pairId": 11,
+    "cards": [
+      {
+        "id": 21,
+        "name": "Блондин",
+        "image": "21.png",
+        "audio": "21.mp3",
+        "trueCharacteristic": "Светлые",
+        "characteristics": ["Светлые", "Бледные", "Открытое"]
+      },
+      {
+        "id": 22,
+        "name": "Брюнет",
+        "image": "22.png",
+        "audio": "22.mp3",
+        "trueCharacteristic": "Темные",
+        "characteristics": ["Темные", "Грязные", "Теплые"]
+      }
+    ]
+  },
+  {
+    "pairId": 12,
+    "cards": [
+      {
+        "id": 23,
+        "name": "Ленивец",
+        "image": "23.png",
+        "audio": "23.mp3",
+        "trueCharacteristic": "Медленный",
+        "characteristics": ["Медленный", "Тяжелый", "Крупный"]
+      },
+      {
+        "id": 24,
+        "name": "Заяц",
+        "image": "24.png",
+        "audio": "24.mp3",
+        "trueCharacteristic": "Быстрый",
+        "characteristics": ["Быстрый", "Легкий", "Скоростной"]
+      }
+    ]
+  },
+  {
+    "pairId": 13,
+    "cards": [
+      {
+        "id": 25,
+        "name": "Соленый огурец",
+        "image": "25.png",
+        "audio": "25.mp3",
+        "trueCharacteristic": "Соленый",
+        "characteristics": ["Соленый", "Короткий", "Сладкий"]
+      },
+      {
+        "id": 26,
+        "name": "Свежий огурец",
+        "image": "26.png",
+        "audio": "26.mp3",
+        "trueCharacteristic": "Свежий",
+        "characteristics": ["Свежий", "Яркий", "Простой"]
+      }
+    ]
+  },
+  {
+    "pairId": 14,
+    "cards": [
+      {
+        "id": 27,
+        "name": "Мяч",
+        "image": "27.png",
+        "audio": "27.mp3",
+        "trueCharacteristic": "Круглый",
+        "characteristics": ["Круглый", "Мягкий", "Кухонный"]
+      },
+      {
+        "id": 28,
+        "name": "Кубик",
+        "image": "28.png",
+        "audio": "28.mp3",
+        "trueCharacteristic": "Квадратный",
+        "characteristics": ["Квадратный", "Сложный", "Учебный"]
+      }
+    ]
+  },
+  {
+    "pairId": 15,
+    "cards": [
+      {
+        "id": 29,
+        "name": "Острый перец",
+        "image": "29.png",
+        "audio": "29.mp3",
+        "trueCharacteristic": "Горький",
+        "characteristics": ["Горький", "Мокрый", "Чистый"]
+      },
+      {
+        "id": 30,
+        "name": "Мед в сотах",
+        "image": "30.png",
+        "audio": "30.mp3",
+        "trueCharacteristic": "Сладкий",
+        "characteristics": ["Сладкий", "Гладкий", "Медленный"]
+      }
+    ]
+  },
+  {
+    "pairId": 16,
+    "cards": [
+      {
+        "id": 31,
+        "name": "Орехи грецкие",
+        "image": "31.png",
+        "audio": "31.mp3",
+        "trueCharacteristic": "Крупные",
+        "characteristics": ["Крупные", "Большие", "Глухие"]
+      },
+      {
+        "id": 32,
+        "name": "Орехи кедровые",
+        "image": "32.png",
+        "audio": "32.mp3",
+        "trueCharacteristic": "Мелкие",
+        "characteristics": ["Мелкие", "Тонкие", "Хрупкие"]
+      }
+    ]
+  }
+]
+

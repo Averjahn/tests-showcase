@@ -1,0 +1,9 @@
+{
+  "id": "test-27-main",
+  "name": "Составь фразу",
+  "description": "Составьте фразу по картинке: «Кто? — Что делает? — Что?/Кого?»",
+  "category": "1.5",
+  "estimatedTime": 900,
+  "difficulty": "medium"
+}
+

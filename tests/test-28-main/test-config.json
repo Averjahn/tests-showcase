@@ -1,0 +1,8 @@
+{
+  "id": "test-28-main",
+  "name": "Подбери слово к картинке",
+  "description": "Выберите подходящее слово для каждой картинки.",
+  "category": "1.5",
+  "estimatedTime": 900,
+  "difficulty": "medium"
+}

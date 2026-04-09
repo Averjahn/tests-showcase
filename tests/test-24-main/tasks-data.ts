@@ -380,4 +380,3 @@ export const tasks: Task[] = [
     ],
   },
 ];
-

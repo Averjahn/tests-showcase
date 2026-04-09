@@ -1,0 +1,38 @@
+[
+  {
+    "id": "1",
+    "text": "шкаф",
+    "image": "images/shkaf.png",
+    "audio": "audio/shkaf.mp3"
+  },
+  {
+    "id": "2",
+    "text": "слива",
+    "image": "images/sliva.png",
+    "audio": "audio/sliva.mp3"
+  },
+  {
+    "id": "3",
+    "text": "ботинки",
+    "image": "images/botinki.png",
+    "audio": "audio/botinki.mp3"
+  },
+  {
+    "id": "4",
+    "text": "молоток",
+    "image": "images/molotok.png",
+    "audio": "audio/molotok.mp3"
+  },
+  {
+    "id": "5",
+    "text": "солнце",
+    "image": "images/solnce.png",
+    "audio": "audio/solnce.mp3"
+  },
+  {
+    "id": "6",
+    "text": "плита",
+    "image": "images/plita.png",
+    "audio": "audio/plita.mp3"
+  }
+]

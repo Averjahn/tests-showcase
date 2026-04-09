@@ -1,0 +1,8 @@
+{
+  "id": "test-29-main",
+  "name": "Подбери глагол",
+  "description": "Вставьте подходящий глагол в предложение по картинке.",
+  "category": "1.5",
+  "estimatedTime": 900,
+  "difficulty": "medium"
+}

@@ -19,11 +19,13 @@ export default function Test15Main({ config, onComplete }: TestComponentProps) {
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [seconds, setSeconds] = useState(0);
   const [currentPhrase, setCurrentPhrase] = useState("");
+  const [currentAudioId, setCurrentAudioId] = useState<number>(1);
   const [correctAnswer, setCorrectAnswer] = useState(0);
   const [showResult, setShowResult] = useState<"correct" | "incorrect" | "">("");
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
   const startedAtRef = useRef(new Date().toISOString());
   const completedRef = useRef(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const currentTask = tasks[currentTaskIndex];
 
@@ -31,10 +33,11 @@ export default function Test15Main({ config, onComplete }: TestComponentProps) {
     if (!currentTask) return;
     const randomIndex = Math.floor(Math.random() * 2);
     setCurrentPhrase(currentTask[randomIndex] ?? "");
+    setCurrentAudioId(currentTaskIndex * 2 + randomIndex + 1);
     setCorrectAnswer(randomIndex);
     setShowResult("");
     setSelectedImage(null);
-  }, [currentTask]);
+  }, [currentTask, currentTaskIndex]);
 
   useEffect(() => {
     initTask();
@@ -45,7 +48,20 @@ export default function Test15Main({ config, onComplete }: TestComponentProps) {
     return () => clearInterval(t);
   }, []);
 
-  const speak = () => {
+  const speak = async () => {
+    const audio = audioRef.current;
+    const src = `/tests/${config.id}/media/audio/${currentAudioId}.mp3`;
+    if (audio) {
+      try {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.src = src;
+        await audio.play();
+        return;
+      } catch {
+        // fallback ниже
+      }
+    }
     if (typeof window === "undefined" || !window.speechSynthesis) return;
     const u = new SpeechSynthesisUtterance(currentPhrase);
     u.lang = "ru-RU";
@@ -105,6 +121,7 @@ export default function Test15Main({ config, onComplete }: TestComponentProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <audio ref={audioRef} />
       <div className="mx-auto max-w-4xl">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-xl bg-white p-4 shadow">
           <div className="font-semibold">

@@ -1,0 +1,8 @@
+{
+  "id": "test-26-main",
+  "name": "Покажите…",
+  "description": "Прослушайте фразу и выберите соответствующую сцену из двух карточек.",
+  "category": "1.5",
+  "estimatedTime": 480,
+  "difficulty": "medium"
+}

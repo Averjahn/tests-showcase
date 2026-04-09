@@ -1,0 +1,9 @@
+{
+  "id": "test-21-main",
+  "name": "Вставьте пропущенные буквы",
+  "description": "Выберите гласную и вставьте её в пропуск в тексте.",
+  "category": "1.5",
+  "estimatedTime": 360,
+  "difficulty": "medium"
+}
+

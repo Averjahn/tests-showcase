@@ -10,6 +10,7 @@ export type PhraseToImageItem = {
   id: number;
   phrase: string;
   mediaPath: string;
+  audioPath?: string;
 };
 
 export function createPhraseToImageTestComponent(items: PhraseToImageItem[]) {
@@ -24,6 +25,7 @@ export function createPhraseToImageTestComponent(items: PhraseToImageItem[]) {
     const completedRef = useRef(false);
 
     const currentItem = items[currentIndex];
+    const audioRef = useRef<HTMLAudioElement | null>(null);
 
     const options = useMemo(() => {
       if (!currentItem) return [];
@@ -145,12 +147,26 @@ export function createPhraseToImageTestComponent(items: PhraseToImageItem[]) {
             <button
               type="button"
               onClick={() => {
-                if (typeof window !== "undefined" && window.speechSynthesis) {
-                  window.speechSynthesis.cancel();
-                  const u = new SpeechSynthesisUtterance(currentItem.phrase);
-                  u.lang = "ru-RU";
-                  window.speechSynthesis.speak(u);
+                if (typeof window === "undefined") return;
+
+                if (currentItem.audioPath) {
+                  try {
+                    if (!audioRef.current) audioRef.current = new Audio();
+                    audioRef.current.pause();
+                    audioRef.current.currentTime = 0;
+                    audioRef.current.src = currentItem.audioPath;
+                    void audioRef.current.play();
+                    return;
+                  } catch {
+                    // fall back to speech synthesis below
+                  }
                 }
+
+                if (!window.speechSynthesis) return;
+                window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(currentItem.phrase);
+                u.lang = "ru-RU";
+                window.speechSynthesis.speak(u);
               }}
               className="flex h-14 w-14 items-center justify-center rounded-full bg-green-500 text-white hover:bg-green-600"
               aria-label="Произнести фразу"

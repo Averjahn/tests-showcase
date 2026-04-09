@@ -338,17 +338,13 @@ export default function Test24Main({ config, onComplete }: TestComponentProps) {
                               key={`slot-${phraseIndex}-${slotIndex}`}
                               className="min-w-[120px]"
                             >
-                              <div className="mb-1 text-center text-xs text-slate-500">
-                                {label}
-                              </div>
+                              <div className="mb-1 text-center text-xs text-slate-500">{label}</div>
                               <button
                                 type="button"
                                 onClick={() => handleSlotClick(phraseIndex, slotIndex)}
                                 className={[
                                   "h-10 w-full rounded-xl border bg-white px-2 text-sm font-semibold text-slate-700 hover:border-indigo-400",
-                                  phrase.slots[slotIndex]
-                                    ? "border-slate-300"
-                                    : "border-dashed border-slate-300",
+                                  phrase.slots[slotIndex] ? "border-slate-300" : "border-dashed border-slate-300",
                                 ].join(" ")}
                               >
                                 {phrase.slots[slotIndex] ?? "—"}
