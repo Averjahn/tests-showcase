@@ -123,6 +123,7 @@ export function createPhraseToImageTestComponent(items: PhraseToImageItem[]) {
       <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 p-4">
         <div className="mx-auto max-w-4xl">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-xl bg-white p-4 shadow">
+            <div className="w-full text-xl font-bold text-slate-900">{config.name}</div>
             <div className="font-semibold">
               Задание {currentIndex + 1} из {items.length}
             </div>

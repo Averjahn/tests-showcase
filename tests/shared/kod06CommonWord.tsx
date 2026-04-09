@@ -341,7 +341,10 @@ export function createKod06CommonWordTestComponent(opts: {
             flexWrap: "wrap",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ width: "100%", fontSize: 20, fontWeight: 900, color: "#0f172a" }}>
+            {config.name}
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
             <div style={{ fontWeight: 900, color: "#0f172a" }}>{title}</div>
             <div style={{ width: 1, height: 22, background: "#e5e7eb" }} />
             <div style={{ fontFamily: "monospace", fontWeight: 900, color: "#0f172a" }}>

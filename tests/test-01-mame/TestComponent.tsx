@@ -366,12 +366,16 @@ export default function Test01Mame({ config, onComplete }: TestComponentProps) {
           boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
           marginBottom: 16,
           display: "flex",
-          alignItems: "center",
+          alignItems: "stretch",
           justifyContent: "space-between",
           gap: 16,
           flexWrap: "wrap",
         }}
       >
+        <div style={{ width: "100%", fontSize: 20, fontWeight: 900, color: "#0f172a" }}>
+          {config.name}
+        </div>
+
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <div
             style={{
