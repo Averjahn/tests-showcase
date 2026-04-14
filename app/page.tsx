@@ -58,6 +58,13 @@ export default async function HomePage({
   const endIndex = Math.min(startIndex + PAGE_SIZE, tests.length);
   const pageTests = tests.slice(startIndex, endIndex);
 
+  const discussionHref =
+    startIndex + 1 <= 10
+      ? "https://disk.yandex.ru/i/4of_JjSOUbEVxQ"
+      : startIndex + 1 <= 20
+        ? "https://disk.yandex.ru/i/5yW5X-8cx9e-1A"
+        : "https://disk.yandex.ru/i/qe4lOP4bAL6zgA";
+
   return (
     <main
       style={{
@@ -155,7 +162,9 @@ export default async function HomePage({
                 </a>
 
                 <a
-                  href="#discussion"
+                  href={discussionHref}
+                  target="_blank"
+                  rel="noreferrer noopener"
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
