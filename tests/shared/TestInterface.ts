@@ -5,6 +5,7 @@
 export interface TestConfig {
   id: string;
   name: string;
+  seqNum?: number;
   description?: string;
   category?: string;
   estimatedTime?: number; // в секундах

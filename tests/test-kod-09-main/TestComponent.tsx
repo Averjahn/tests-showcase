@@ -342,6 +342,9 @@ export default function TestKod09Main({ config, onComplete }: TestComponentProps
   return (
     <div style={{ padding: 24, maxWidth: 1200, margin: "0 auto" }}>
       <div style={headerBox}>
+        <div style={{ width: "100%", fontSize: 20, fontWeight: 900, color: "#0f172a" }}>
+          {config.name}
+        </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
           <div style={{ fontWeight: 900, color: "#0f172a" }}>Анаграммы</div>
           <div style={{ width: 1, height: 22, background: "#e5e7eb" }} />

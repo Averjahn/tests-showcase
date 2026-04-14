@@ -16,6 +16,14 @@ export default function TestPage() {
     return <div style={{ padding: 24 }}>Ошибка: тест "{testId}" не найден</div>;
   }
 
+  const seqNum =
+    typeof (test.config as any)?.seqNum === "number" ? (test.config as any).seqNum : null;
+  const numberedName =
+    seqNum && !String(test.config.name).startsWith(`${seqNum}. `)
+      ? `${seqNum}. ${test.config.name}`
+      : test.config.name;
+  const config = seqNum ? { ...test.config, name: numberedName } : test.config;
+
   return (
     <div
       style={{
@@ -52,7 +60,7 @@ export default function TestPage() {
 
       <div style={{ height: "100dvh", padding: "0" }}>
         <TestWrapper
-          config={test.config}
+          config={config}
           TestComponent={test.component}
           onFinished={() => router.push("/")}
         />

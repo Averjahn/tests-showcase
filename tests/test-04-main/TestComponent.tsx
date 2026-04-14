@@ -313,6 +313,9 @@ export default function Test04Main({ config, onComplete }: TestComponentProps) {
           flexWrap: "wrap",
         }}
       >
+        <div style={{ width: "100%", fontSize: 20, fontWeight: 900, color: "#0f172a" }}>
+          {config.name}
+        </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ fontWeight: 900, color: "#0f172a" }}>С 3.3 — Найти окончание слов</div>
           <div style={{ width: 1, height: 22, background: "#e5e7eb" }} />

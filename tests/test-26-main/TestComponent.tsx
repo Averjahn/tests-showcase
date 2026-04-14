@@ -331,6 +331,7 @@ export default function Test26Main({ config, onComplete }: TestComponentProps) {
       <audio ref={audioRef} preload="metadata" className="hidden" />
       <div className="mx-auto max-w-5xl">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-xl bg-white p-4 shadow">
+          <div className="w-full text-xl font-bold text-slate-900">{config.name}</div>
           <div className="flex flex-wrap items-center gap-3">
             <span className="rounded-lg bg-indigo-100 px-3 py-1.5 text-sm font-semibold text-indigo-900">
               {diffLabel}

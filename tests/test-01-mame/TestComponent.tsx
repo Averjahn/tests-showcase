@@ -372,6 +372,10 @@ export default function Test01Mame({ config, onComplete }: TestComponentProps) {
           flexWrap: "wrap",
         }}
       >
+        <div style={{ width: "100%", fontSize: 20, fontWeight: 900, color: "#0f172a" }}>
+          {config.name}
+        </div>
+
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <div
             style={{
