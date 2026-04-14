@@ -1,9 +1,9 @@
 {
-  "id": "test-21-main",
-  "name": "Вставьте пропущенные буквы",
-  "description": "Выберите гласную и вставьте её в пропуск в тексте.",
-  "category": "1.5",
-  "estimatedTime": 360,
-  "difficulty": "medium"
+    "id":  "test-21-main",
+    "seqNum":  19,
+    "category":  "1.5",
+    "estimatedTime":  360,
+    "difficulty":  "medium",
+    "name":  "Вставьте пропущенные буквы",
+    "description":  "Выберите гласную и вставьте её в пропуск в тексте."
 }
-

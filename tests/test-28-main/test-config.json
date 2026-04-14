@@ -1,8 +1,9 @@
 {
-  "id": "test-28-main",
-  "name": "Подбери слово к картинке",
-  "description": "Выберите подходящее слово для каждой картинки.",
-  "category": "1.5",
-  "estimatedTime": 900,
-  "difficulty": "medium"
+    "id":  "test-28-main",
+    "seqNum":  26,
+    "category":  "1.5",
+    "estimatedTime":  900,
+    "difficulty":  "medium",
+    "name":  "Подбери слово к картинке",
+    "description":  "Выберите подходящее слово для каждой картинки."
 }

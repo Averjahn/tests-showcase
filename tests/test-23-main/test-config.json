@@ -1,9 +1,9 @@
 {
-  "id": "test-23-main",
-  "name": "Найдите слова на букву М среди букв",
-  "description": "Выберите буквы слова и нажмите «Готово».",
-  "category": "1.5",
-  "estimatedTime": 360,
-  "difficulty": "medium"
+    "id":  "test-23-main",
+    "seqNum":  21,
+    "category":  "1.5",
+    "estimatedTime":  360,
+    "difficulty":  "medium",
+    "name":  "Найдите слова на букву М среди букв",
+    "description":  "Выберите буквы слова и нажмите «Готово»."
 }
-

@@ -1,9 +1,9 @@
 {
-  "id": "test-22-main",
-  "name": "Вставьте предлоги",
-  "description": "Выберите предлог и вставьте его в пропуск в словосочетании.",
-  "category": "1.5",
-  "estimatedTime": 360,
-  "difficulty": "medium"
+    "id":  "test-22-main",
+    "seqNum":  20,
+    "category":  "1.5",
+    "estimatedTime":  360,
+    "difficulty":  "medium",
+    "name":  "Вставьте предлоги",
+    "description":  "Выберите предлог и вставьте его в пропуск в словосочетании."
 }
-

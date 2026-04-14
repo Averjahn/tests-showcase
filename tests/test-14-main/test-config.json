@@ -1,8 +1,9 @@
 {
-  "id": "test-14-main",
-  "name": "Фраза и картинка",
-  "description": "Подберите подпись к картинке (соответствие фразы и изображения).",
-  "category": "1.1",
-  "estimatedTime": 360,
-  "difficulty": "medium"
+    "id":  "test-14-main",
+    "seqNum":  5,
+    "category":  "1.1",
+    "estimatedTime":  360,
+    "difficulty":  "medium",
+    "name":  "Фраза и картинка",
+    "description":  "Подберите подпись к картинке (соответствие фразы и изображения)."
 }

@@ -1,1 +1,9 @@
-{"id":"test-code-priz","name":"Распределить слова (признаки)","description":"Подберите слова-признаки к существительным.","category":"1.3","estimatedTime":300,"difficulty":"medium"}
+{
+    "id":  "test-code-priz",
+    "seqNum":  11,
+    "category":  "1.3",
+    "estimatedTime":  300,
+    "difficulty":  "medium",
+    "name":  "Распределить слова (признаки)",
+    "description":  "Подберите слова-признаки к существительным."
+}

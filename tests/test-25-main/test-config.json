@@ -1,8 +1,9 @@
 {
-  "id": "test-25-main",
-  "name": "Покажите, где…",
-  "description": "Прослушайте слово и выберите соответствующую картинку.",
-  "category": "1.5",
-  "estimatedTime": 300,
-  "difficulty": "easy"
+    "id":  "test-25-main",
+    "seqNum":  23,
+    "category":  "1.5",
+    "estimatedTime":  300,
+    "difficulty":  "easy",
+    "name":  "Покажите, где…",
+    "description":  "Прослушайте слово и выберите соответствующую картинку."
 }

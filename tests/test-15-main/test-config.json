@@ -1,8 +1,9 @@
 {
-  "id": "test-15-main",
-  "name": "Прилагательное и существительное",
-  "description": "Прослушайте словосочетание и выберите подходящую картинку.",
-  "category": "1.2",
-  "estimatedTime": 300,
-  "difficulty": "easy"
+    "id":  "test-15-main",
+    "seqNum":  6,
+    "category":  "1.2",
+    "estimatedTime":  300,
+    "difficulty":  "easy",
+    "name":  "Прилагательное и существительное",
+    "description":  "Прослушайте словосочетание и выберите подходящую картинку."
 }

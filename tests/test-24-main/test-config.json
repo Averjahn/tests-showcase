@@ -1,9 +1,9 @@
 {
-  "id": "test-24-main",
-  "name": "Составьте фразы",
-  "description": "Составьте фразы из перемешанных слов.",
-  "category": "1.5",
-  "estimatedTime": 420,
-  "difficulty": "medium"
+    "id":  "test-24-main",
+    "seqNum":  22,
+    "category":  "1.5",
+    "estimatedTime":  420,
+    "difficulty":  "medium",
+    "name":  "Составьте фразы",
+    "description":  "Составьте фразы из перемешанных слов."
 }
-

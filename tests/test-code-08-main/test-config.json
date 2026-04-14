@@ -1,9 +1,9 @@
 {
-  "id": "test-code-08-main",
-  "name": "Глагол с приставками",
-  "description": "Добавьте приставку к глаголу в каждом предложении.",
-  "category": "Словообразование",
-  "estimatedTime": 300,
-  "difficulty": "medium"
+    "id":  "test-code-08-main",
+    "seqNum":  9,
+    "estimatedTime":  300,
+    "difficulty":  "medium",
+    "name":  "Глагол с приставками",
+    "description":  "Добавьте приставку к глаголу в каждом предложении.",
+    "category":  "Словообразование"
 }
-
