@@ -1,7 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 
-type TestListItem = { id: string; title: string };
+type TestListItem = { id: string; title: string; seqNum: number | null };
 
 async function loadTestsFromConfigs(): Promise<TestListItem[]> {
   const testsRoot = path.join(process.cwd(), "tests");
@@ -17,16 +17,22 @@ async function loadTestsFromConfigs(): Promise<TestListItem[]> {
 
     try {
       const raw = await fs.readFile(configPath, "utf-8");
-      const json = JSON.parse(raw) as { id?: string; name?: string };
+      const json = JSON.parse(raw) as { id?: string; name?: string; seqNum?: number };
       const id = json.id ?? entry.name;
       const title = json.name ?? id;
-      items.push({ id, title });
+      const seqNum = typeof json.seqNum === "number" ? json.seqNum : null;
+      items.push({ id, title, seqNum });
     } catch {
       // ignore folders without test-config.json
     }
   }
 
-  items.sort((a, b) => a.id.localeCompare(b.id, "ru"));
+  items.sort((a, b) => {
+    const aSeq = a.seqNum ?? Number.POSITIVE_INFINITY;
+    const bSeq = b.seqNum ?? Number.POSITIVE_INFINITY;
+    if (aSeq !== bSeq) return aSeq - bSeq;
+    return a.id.localeCompare(b.id, "ru");
+  });
   return items;
 }
 
@@ -66,7 +72,7 @@ export default async function HomePage() {
         </h1>
 
         <div style={{ display: "grid", gap: 10 }}>
-          {tests.map((test, idx) => {
+          {tests.map((test) => {
             const href = `/tests/${test.id}`;
             return (
               <a
@@ -81,7 +87,7 @@ export default async function HomePage() {
                   fontWeight: 600,
                 }}
               >
-                {idx + 1}. {test.title}
+                {test.seqNum ? `${test.seqNum}. ${test.title}` : test.title}
               </a>
             );
           })}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { getTestById } from "../../../lib/test-loader";
 import { TestWrapper } from "../../../tests/shared/TestWrapper";
 
@@ -11,39 +11,10 @@ export default function TestPage() {
   const testId = params.testId as string;
 
   const test = useMemo(() => getTestById(testId), [testId]);
-  const [ordinal, setOrdinal] = useState<number | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadOrdinal() {
-      try {
-        const res = await fetch("/api/tests", { cache: "no-store" });
-        if (!res.ok) return;
-        const items = (await res.json()) as Array<{ id: string }>;
-        const idx = items.findIndex((t) => t.id === testId);
-        if (idx < 0) return;
-        if (!cancelled) setOrdinal(idx + 1);
-      } catch {
-        // ignore
-      }
-    }
-
-    setOrdinal(null);
-    void loadOrdinal();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [testId]);
 
   if (!test) {
     return <div style={{ padding: 24 }}>Ошибка: тест "{testId}" не найден</div>;
   }
-
-  const config = ordinal
-    ? { ...test.config, name: `${ordinal}. ${test.config.name}` }
-    : test.config;
 
   return (
     <div
@@ -81,7 +52,7 @@ export default function TestPage() {
 
       <div style={{ height: "100dvh", padding: "0" }}>
         <TestWrapper
-          config={config}
+          config={test.config}
           TestComponent={test.component}
           onFinished={() => router.push("/")}
         />
