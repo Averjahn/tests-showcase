@@ -3,6 +3,8 @@ import path from "path";
 
 type TestListItem = { id: string; title: string; seqNum: number | null };
 
+const PAGE_SIZE = 10;
+
 async function loadTestsFromConfigs(): Promise<TestListItem[]> {
   const testsRoot = path.join(process.cwd(), "tests");
   const entries = await fs.readdir(testsRoot, { withFileTypes: true });
@@ -36,8 +38,25 @@ async function loadTestsFromConfigs(): Promise<TestListItem[]> {
   return items;
 }
 
-export default async function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const tests = await loadTestsFromConfigs();
+  const sp = (await searchParams) ?? {};
+
+  const totalPages = Math.max(1, Math.ceil(tests.length / PAGE_SIZE));
+
+  const rawPage = Array.isArray(sp.page) ? sp.page[0] : sp.page;
+  const pageFromQuery = rawPage ? Number.parseInt(String(rawPage), 10) : 1;
+  const currentPage = Number.isFinite(pageFromQuery)
+    ? Math.min(Math.max(pageFromQuery, 1), totalPages)
+    : 1;
+
+  const startIndex = (currentPage - 1) * PAGE_SIZE;
+  const endIndex = Math.min(startIndex + PAGE_SIZE, tests.length);
+  const pageTests = tests.slice(startIndex, endIndex);
 
   return (
     <main
@@ -71,8 +90,40 @@ export default async function HomePage() {
           Тренажеры
         </h1>
 
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 14 }}>
+          {new Array(totalPages).fill(null).map((_, pageIdx) => {
+            const page = pageIdx + 1;
+            const from = pageIdx * PAGE_SIZE + 1;
+            const to = Math.min((pageIdx + 1) * PAGE_SIZE, tests.length);
+            const active = page === currentPage;
+            const href = page === 1 ? "/" : `/?page=${page}`;
+            return (
+              <a
+                key={page}
+                href={href}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  border: `1px solid ${active ? "#4f46e5" : "#d1d5db"}`,
+                  borderRadius: 12,
+                  padding: "10px 12px",
+                  background: active ? "#eef2ff" : "#f9fafb",
+                  fontWeight: 800,
+                  color: "#111827",
+                  minWidth: 86,
+                  textDecoration: "none",
+                }}
+                aria-current={active ? "page" : undefined}
+              >
+                {from}-{to}
+              </a>
+            );
+          })}
+        </div>
+
         <div style={{ display: "grid", gap: 10 }}>
-          {tests.map((test) => {
+          {pageTests.map((test) => {
             const href = `/tests/${test.id}`;
             return (
               <a
@@ -85,12 +136,18 @@ export default async function HomePage() {
                   padding: "14px 16px",
                   background: "#f9fafb",
                   fontWeight: 600,
+                  textDecoration: "none",
+                  color: "#111827",
                 }}
               >
                 {test.seqNum ? `${test.seqNum}. ${test.title}` : test.title}
               </a>
             );
           })}
+        </div>
+
+        <div style={{ marginTop: 14, textAlign: "center", color: "#6b7280", fontSize: 13 }}>
+          Показано {startIndex + 1}-{endIndex} из {tests.length}
         </div>
       </section>
     </main>
