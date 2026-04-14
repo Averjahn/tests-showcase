@@ -63,11 +63,24 @@ export default async function HomePage({
       style={{
         minHeight: "100vh",
         display: "flex",
+        flexDirection: "column",
         alignItems: "center",
-        justifyContent: "center",
         padding: 24,
       }}
     >
+      <h1
+        style={{
+          margin: 0,
+          marginBottom: 18,
+          fontSize: 28,
+          lineHeight: 1.2,
+          width: "100%",
+          maxWidth: 720,
+        }}
+      >
+        Тренажеры
+      </h1>
+
       <section
         style={{
           width: "100%",
@@ -79,17 +92,6 @@ export default async function HomePage({
           padding: 24,
         }}
       >
-        <h1
-          style={{
-            margin: 0,
-            marginBottom: 18,
-            fontSize: 28,
-            lineHeight: 1.2,
-          }}
-        >
-          Тренажеры
-        </h1>
-
         <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 14 }}>
           {new Array(totalPages).fill(null).map((_, pageIdx) => {
             const page = pageIdx + 1;
@@ -125,23 +127,52 @@ export default async function HomePage({
         <div style={{ display: "grid", gap: 10 }}>
           {pageTests.map((test) => {
             const href = `/tests/${test.id}`;
+            const title = test.seqNum ? `${test.seqNum}. ${test.title}` : test.title;
             return (
-              <a
+              <div
                 key={test.id}
-                href={href}
                 style={{
-                  display: "block",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 12,
                   border: "1px solid #d1d5db",
                   borderRadius: 12,
                   padding: "14px 16px",
                   background: "#f9fafb",
-                  fontWeight: 600,
-                  textDecoration: "none",
-                  color: "#111827",
                 }}
               >
-                {test.seqNum ? `${test.seqNum}. ${test.title}` : test.title}
-              </a>
+                <a
+                  href={href}
+                  style={{
+                    fontWeight: 600,
+                    textDecoration: "none",
+                    color: "#111827",
+                    flex: "1 1 auto",
+                  }}
+                >
+                  {title}
+                </a>
+
+                <a
+                  href="#discussion"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "10px 14px",
+                    borderRadius: 100,
+                    background: "#2BDCFF",
+                    color: "#0b1220",
+                    fontWeight: 400,
+                    textDecoration: "none",
+                    whiteSpace: "nowrap",
+                    flex: "0 0 auto",
+                  }}
+                >
+                  Обсуждение
+                </a>
+              </div>
             );
           })}
         </div>
