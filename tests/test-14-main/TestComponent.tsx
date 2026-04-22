@@ -21,6 +21,7 @@ export default function Test14Main({ config, onComplete }: TestComponentProps) {
   const [feedback, setFeedback] = useState<"correct" | "incorrect" | null>(null);
   const [phrases, setPhrases] = useState<string[]>([]);
   const [images, setImages] = useState<string[]>([]);
+  const [readyToProceed, setReadyToProceed] = useState(false);
   const startedAtRef = useRef(new Date().toISOString());
   const completedRef = useRef(false);
 
@@ -59,6 +60,7 @@ export default function Test14Main({ config, onComplete }: TestComponentProps) {
     setMatches({});
     setSelectedPhrase(null);
     setSelectedImage(null);
+    setReadyToProceed(false);
   }, [currentTaskIndex, task]);
 
   useEffect(() => {
@@ -76,22 +78,11 @@ export default function Test14Main({ config, onComplete }: TestComponentProps) {
       setSelectedImage(null);
       const newMatches = { ...matches, [phrase]: image };
       if (Object.keys(newMatches).length === phrases.length) {
-        const finalCorrect = correctCount + 1;
-        setTimeout(() => {
-          if (currentTaskIndex >= TASKS.length - 1) {
-            if (completedRef.current) return;
-            completedRef.current = true;
-            onComplete({
-              testId: config.id,
-              answers: [],
-              totalTime: seconds * 1000,
-              correctCount: finalCorrect,
-              incorrectCount,
-              startedAt: startedAtRef.current,
-              completedAt: new Date().toISOString(),
-            });
-          } else setCurrentTaskIndex((i) => i + 1);
-        }, 1000);
+        window.setTimeout(() => {
+          setFeedback(null);
+          setReadyToProceed(true);
+        }, 900);
+        return;
       }
     } else {
       setIncorrectCount((c) => c + 1);
@@ -129,17 +120,43 @@ export default function Test14Main({ config, onComplete }: TestComponentProps) {
     });
   };
 
+  const handleNextTask = () => {
+    if (currentTaskIndex >= TASKS.length - 1) return;
+    setCurrentTaskIndex((i) => i + 1);
+  };
+
   if (!task || phrases.length === 0) return null;
+  const isLastTask = currentTaskIndex === TASKS.length - 1;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <div className="max-w-4xl mx-auto">
+    <div style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-xl bg-white p-4 shadow">
-          <div className="w-full text-xl font-bold text-slate-900">{config.name}</div>
-          <div className="font-semibold">Задание {currentTaskIndex + 1} из {TASKS.length}</div>
+          <div className="w-full text-xl font-bold text-slate-900">
+            {typeof config.seqNum === "number" ? `${config.seqNum}. ` : ""}
+            {config.name}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <select
+              value={currentTaskIndex}
+              onChange={(e) => setCurrentTaskIndex(Number(e.target.value))}
+              className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
+              aria-label="Выбор задания"
+            >
+              {TASKS.map((_, idx) => (
+                <option key={idx} value={idx}>
+                  Задание {idx + 1}
+                </option>
+              ))}
+            </select>
+            <div className="text-lg font-semibold">
+              Задание {currentTaskIndex + 1} из {TASKS.length}
+            </div>
+          </div>
+
           <div className="flex items-center gap-4">
-            <span className="text-green-600 font-semibold">✓ {correctCount}</span>
-            <span className="text-red-600 font-semibold">✗ {incorrectCount}</span>
+            <span className="font-semibold text-green-600">✓ {correctCount}</span>
+            <span className="font-semibold text-red-600">✗ {incorrectCount}</span>
             <span className="font-mono">{formatTime(seconds)}</span>
             <button type="button" onClick={handleFinish} className="rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700">
               Завершить тест
@@ -147,51 +164,71 @@ export default function Test14Main({ config, onComplete }: TestComponentProps) {
           </div>
         </div>
 
-        <p className="mb-4 text-center text-gray-600">Подберите подпись к картинке</p>
+        <p className="mb-6 text-center text-2xl font-semibold text-slate-900">Подберите подпись к картинке</p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <h3 className="font-medium text-gray-700">Фразы</h3>
-            {phrases.map((p) => (
-              <button
-                key={p}
-                type="button"
-                onClick={() => onPhraseClick(p)}
-                disabled={!!matches[p]}
-                className={`w-full rounded-xl border-2 p-4 text-left ${selectedPhrase === p ? "border-blue-500 bg-blue-50" : "border-gray-200"} ${matches[p] ? "opacity-60 cursor-default" : "hover:border-indigo-300"}`}
-              >
-                {p}
-              </button>
-            ))}
-          </div>
-          <div className="space-y-2">
-            <h3 className="font-medium text-gray-700">Картинки (выберите подпись)</h3>
-            {images.map((img) => (
-              <button
-                key={img}
-                type="button"
-                onClick={() => onImageClick(img)}
-                disabled={Object.values(matches).includes(img)}
-                className={`w-full rounded-xl border-2 p-4 text-left ${selectedImage === img ? "border-blue-500 bg-blue-50" : "border-gray-200"} ${Object.values(matches).includes(img) ? "opacity-60 cursor-default" : "hover:border-indigo-300"}`}
-              >
-                {shouldRenderImageCard(img) ? (
-                  <div className="relative rounded-lg cursor-pointer transition-all">
+        {/* Phrase bank (hide matched phrases) */}
+        <div className="mb-10 flex flex-wrap justify-center gap-6">
+          {phrases
+            .filter((p) => !matches[p])
+            .map((p) => {
+              const phraseSelected = selectedPhrase === p;
+              return (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => onPhraseClick(p)}
+                  className={[
+                    "w-full max-w-md rounded-lg px-6 py-3 text-center text-xl font-medium",
+                    phraseSelected ? "bg-slate-200 ring-2 ring-blue-400" : "bg-slate-100 hover:bg-slate-200",
+                  ].join(" ")}
+                >
+                  {p}
+                </button>
+              );
+            })}
+        </div>
+
+        {/* Images grid (matched phrase shown below) */}
+        <div className="mx-auto grid max-w-4xl grid-cols-1 gap-10 md:grid-cols-2">
+          {images.map((img) => {
+            const imageSelected = selectedImage === img;
+            const matchedPhrase = Object.entries(matches).find(([, v]) => v === img)?.[0] ?? null;
+            const imageMatched = Boolean(matchedPhrase);
+
+            return (
+              <div key={img} className="flex flex-col items-center gap-6">
+                <button
+                  type="button"
+                  onClick={() => onImageClick(img)}
+                  disabled={imageMatched}
+                  className={[
+                    "w-full max-w-md rounded-md border bg-white p-6",
+                    imageMatched ? "border-green-500" : "border-slate-900/40",
+                    imageSelected ? "ring-2 ring-blue-400" : "",
+                    imageMatched ? "cursor-default" : "hover:ring-2 hover:ring-blue-200",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                >
+                  {shouldRenderImageCard(img) ? (
                     <img
                       alt={img}
                       loading="lazy"
-                      width={200}
-                      height={200}
+                      width={360}
+                      height={360}
                       decoding="async"
-                      className="w-full aspect-square object-contain rounded"
+                      className="mx-auto aspect-square w-full max-w-[360px] object-contain"
                       src={imageCardSrcByLabel[img]}
                     />
-                  </div>
-                ) : (
-                  <span className="text-gray-800">{img}</span>
-                )}
-              </button>
-            ))}
-          </div>
+                  ) : (
+                    <div className="text-center text-gray-800">{img}</div>
+                  )}
+                </button>
+
+                {matchedPhrase ? <div className="text-center text-2xl font-medium text-slate-900">{matchedPhrase}</div> : null}
+              </div>
+            );
+          })}
         </div>
 
         {feedback && (
@@ -201,7 +238,29 @@ export default function Test14Main({ config, onComplete }: TestComponentProps) {
             </div>
           </div>
         )}
-      </div>
+
+        {readyToProceed && (
+          <div style={{ marginTop: 14, display: "flex", justifyContent: "center" }}>
+            <button
+              type="button"
+              onClick={isLastTask ? handleFinish : handleNextTask}
+              style={{
+                height: 46,
+                minWidth: 220,
+                padding: "0 28px",
+                borderRadius: 16,
+                background: "#7dd3fc",
+                color: "#ffffff",
+                fontWeight: 500,
+                fontSize: 32,
+                lineHeight: 1,
+                border: "0",
+              }}
+            >
+              {isLastTask ? "Завершить" : "Дальше >"}
+            </button>
+          </div>
+        )}
     </div>
   );
 }

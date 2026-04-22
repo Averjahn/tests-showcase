@@ -25,9 +25,11 @@ export default function Test13Main({ config, onComplete }: TestComponentProps) {
   const [wordStates, setWordStates] = useState<("normal" | "correct" | "incorrect")[]>([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
-  const [startTime] = useState(() => Date.now());
-  const [elapsedTime, setElapsedTime] = useState(0);
-  const startedAtRef = useRef(new Date().toISOString());
+  const [readyToProceed, setReadyToProceed] = useState(false);
+  const [elapsedMs, setElapsedMs] = useState(0);
+
+  const startedAtIsoRef = useRef<string>("");
+  const elapsedMsRef = useRef<number>(0);
   const completedRef = useRef(false);
 
   const currentTask = tasks[currentTaskIndex];
@@ -39,12 +41,19 @@ export default function Test13Main({ config, onComplete }: TestComponentProps) {
     setSelectedLetter(null);
     setSelectedVowel(null);
     setShowSuccess(false);
+    setReadyToProceed(false);
   }, [currentTaskIndex, currentTask]);
 
   useEffect(() => {
-    const t = setInterval(() => setElapsedTime(Date.now() - startTime), 1000);
-    return () => clearInterval(t);
-  }, [startTime]);
+    startedAtIsoRef.current = new Date().toISOString();
+    elapsedMsRef.current = 0;
+
+    const t = window.setInterval(() => {
+      elapsedMsRef.current += 100;
+      setElapsedMs(elapsedMsRef.current);
+    }, 100);
+    return () => window.clearInterval(t);
+  }, []);
 
   const applyAttempt = (wordIndex: number, letterIndex: number, chosenVowel: string) => {
     const currentWord = correctedWords[wordIndex];
@@ -61,10 +70,10 @@ export default function Test13Main({ config, onComplete }: TestComponentProps) {
       const allCorrect = newCorrected.every((w, i) => w === currentTask.words[i]);
       if (allCorrect) {
         setShowSuccess(true);
-        setTimeout(() => {
-          if (currentTaskIndex < tasks.length - 1) setCurrentTaskIndex((i) => i + 1);
-          else setIsCompleted(true);
-        }, 1500);
+        window.setTimeout(() => {
+          setShowSuccess(false);
+          setReadyToProceed(true);
+        }, 900);
       }
     } else {
       setIncorrectAnswers((c) => c + 1);
@@ -96,29 +105,44 @@ export default function Test13Main({ config, onComplete }: TestComponentProps) {
     else setSelectedVowel(vowel);
   };
 
-  const handleFinish = () => {
+  const finishTest = () => {
     if (completedRef.current) return;
     completedRef.current = true;
-    onComplete({
+
+    const completedAt = new Date().toISOString();
+    const startedAt = startedAtIsoRef.current || new Date().toISOString();
+
+    const result: TestResult = {
       testId: config.id,
       answers: [],
-      totalTime: elapsedTime,
+      totalTime: elapsedMsRef.current,
       correctCount: correctAnswers,
       incorrectCount: incorrectAnswers,
-      startedAt: startedAtRef.current,
-      completedAt: new Date().toISOString(),
-    });
+      startedAt,
+      completedAt,
+    };
+
+    onComplete(result);
+  };
+
+  const handleNextTask = () => {
+    if (currentTaskIndex >= tasks.length - 1) return;
+    setCurrentTaskIndex((i) => i + 1);
   };
 
   if (isCompleted) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="bg-white rounded-2xl p-8 text-center max-w-md shadow-lg">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Упражнение завершено!</h2>
-          <p className="text-gray-600 mb-4">Верных: {correctAnswers} · Неверных: {incorrectAnswers} · Время: {formatTime(elapsedTime)}</p>
-          <button type="button" onClick={handleFinish} className="rounded-xl bg-indigo-600 px-6 py-3 text-white hover:bg-indigo-700">
-            Завершить тест
-          </button>
+      <div style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
+        <div className="flex items-center justify-center">
+          <div className="bg-white rounded-2xl p-8 text-center max-w-md shadow-lg">
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Упражнение завершено!</h2>
+            <p className="text-gray-600 mb-4">
+              Верных: {correctAnswers} · Неверных: {incorrectAnswers} · Время: {formatTime(elapsedMs)}
+            </p>
+            <button type="button" onClick={finishTest} className="rounded-xl bg-indigo-600 px-6 py-3 text-white hover:bg-indigo-700">
+              Завершить тест
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -127,46 +151,106 @@ export default function Test13Main({ config, onComplete }: TestComponentProps) {
   if (!currentTask) return null;
 
   const isVowelPanelVisible = selectedLetter !== null || selectedVowel !== null;
+  const isLastTask = currentTaskIndex === tasks.length - 1;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="bg-white shadow-sm p-4">
-        <div className="max-w-6xl mx-auto flex justify-between items-center flex-wrap gap-4">
-          <div className="w-full text-xl font-bold text-slate-900">{config.name}</div>
-          <div className="text-lg font-medium">Задание {currentTaskIndex + 1} из {tasks.length}</div>
-          <div className="flex gap-6 text-sm">
-            <span className="text-green-600 font-semibold">✓ {correctAnswers}</span>
-            <span className="text-red-600 font-semibold">✗ {incorrectAnswers}</span>
-            <span className="font-mono">⏱ {formatTime(elapsedTime)}</span>
-            <button type="button" onClick={handleFinish} className="rounded-lg bg-indigo-600 px-4 py-2 text-white text-sm hover:bg-indigo-700">
+    <div style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
+      {/* Header (UI and behavior aligned with test-02-main) */}
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-xl bg-white p-4 shadow">
+          <div className="w-full text-xl font-bold text-slate-900">
+            {typeof config.seqNum === "number" ? `${config.seqNum}. ` : ""}
+            {config.name}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <select
+              value={currentTaskIndex}
+              onChange={(e) => setCurrentTaskIndex(Number(e.target.value))}
+              className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
+              aria-label="Выбор задания"
+            >
+              {tasks.map((_, idx) => (
+                <option key={idx} value={idx}>
+                  Задание {idx + 1}
+                </option>
+              ))}
+            </select>
+            <div className="text-lg font-semibold">
+              Задание {currentTaskIndex + 1} из {tasks.length}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <span className="font-semibold text-green-600">✓ {correctAnswers}</span>
+            <span className="font-semibold text-red-600">✗ {incorrectAnswers}</span>
+            <span className="font-mono">{formatTime(elapsedMs)}</span>
+            <button type="button" onClick={finishTest} className="rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700">
               Завершить тест
             </button>
           </div>
         </div>
-      </div>
 
-      <div className="max-w-6xl mx-auto p-8">
+      <div style={{ textAlign: "center", marginBottom: 18 }}>
+        <div style={{ fontSize: 28, fontWeight: 500, color: "#0f172a", lineHeight: 1.1 }}>ИСПРАВИТЬ ОШИБКУ</div>
+        <div style={{ marginTop: 6, fontSize: 16, fontWeight: 600, color: "#334155" }}>Исправьте ошибку в слове</div>
+      </div>
+      
+
+      <div>
         <div className="flex gap-8 flex-wrap">
           <div className="flex-1 min-w-[280px]">
-            <div className="flex justify-center gap-8 mb-8">
+            <div className="flex w-full gap-8 mb-8">
               {currentTask.words.slice(0, wordsToShow).map((word, wordIndex) => (
-                <div key={wordIndex} className="text-center">
-                  <img src={currentTask.images[wordIndex] || "/placeholder.svg"} alt="" className="w-32 h-32 object-cover rounded-lg shadow-md mb-4 mx-auto bg-gray-100" />
-                  <div className="flex gap-1 justify-center flex-wrap">
-                    {correctedWords[wordIndex]?.split("").map((letter, letterIndex) => {
-                      const isIncorrect = !!currentTask.corrections[letter];
-                      const isSelected = selectedLetter?.wordIndex === wordIndex && selectedLetter?.letterIndex === letterIndex;
-                      return (
-                        <button
-                          key={letterIndex}
-                          type="button"
-                          onClick={() => handleLetterClick(wordIndex, letterIndex)}
-                          className={`w-10 h-10 border-2 rounded flex items-center justify-center font-bold text-lg ${isSelected ? "border-blue-500 bg-blue-100" : "border-gray-300"} ${wordStates[wordIndex] === "correct" ? "bg-green-100 border-green-500" : ""} ${wordStates[wordIndex] === "incorrect" ? "bg-red-100 border-red-500" : ""}`}
-                        >
-                          {letter}
-                        </button>
-                      );
-                    })}
+                <div key={wordIndex} className="flex-1 min-w-[220px] flex flex-col">
+                  <div className="flex-1 rounded-lg shadow-md bg-gray-100 overflow-hidden">
+                    <img
+                      src={currentTask.images[wordIndex] || "/placeholder.svg"}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="mt-4 flex justify-center">
+                    {wordStates[wordIndex] === "correct" ? (
+                      <div className="inline-flex h-16 w-full max-w-[420px] items-center justify-center rounded-2xl border-2 border-green-500 bg-green-50 px-6">
+                        <span className="text-4xl font-medium tracking-[0.35em] text-slate-900">
+                          {correctedWords[wordIndex]?.split("").join(" ") ?? ""}
+                        </span>
+                      </div>
+                    ) : (
+                      <div
+                        className={[
+                          "inline-flex h-16 w-full max-w-[420px] items-center justify-center overflow-hidden rounded-2xl border-2 px-6",
+                          "gap-1 bg-transparent",
+                          wordStates[wordIndex] === "incorrect" ? "border-red-500" : "",
+                          wordStates[wordIndex] === "normal" ? "border-sky-400" : "",
+                        ]
+                          .filter(Boolean)
+                          .join(" ")}
+                      >
+                        {correctedWords[wordIndex]?.split("").map((letter, letterIndex) => {
+                          const isIncorrect = !!currentTask.corrections[letter];
+                          const isSelected =
+                            selectedLetter?.wordIndex === wordIndex && selectedLetter?.letterIndex === letterIndex;
+                          return (
+                            <button
+                              key={letterIndex}
+                              type="button"
+                              onClick={() => handleLetterClick(wordIndex, letterIndex)}
+                              className={[
+                                "h-full w-12 select-none text-4xl font-medium text-slate-900",
+                                "flex items-center justify-center",
+                                isSelected ? "bg-sky-100" : "bg-rose-50",
+                                isIncorrect ? "cursor-pointer" : "cursor-default",
+                              ]
+                                .filter(Boolean)
+                                .join(" ")}
+                            >
+                              {letter}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -191,6 +275,29 @@ export default function Test13Main({ config, onComplete }: TestComponentProps) {
           </div>
         )}
       </div>
+
+      {readyToProceed && (
+        <div style={{ marginTop: 14, display: "flex", justifyContent: "center" }}>
+          <button
+            type="button"
+            onClick={isLastTask ? finishTest : handleNextTask}
+            style={{
+              height: 46,
+              minWidth: 220,
+              padding: "0 28px",
+              borderRadius: 16,
+              background: "#7dd3fc",
+              color: "#ffffff",
+              fontWeight: 500,
+              fontSize: 32,
+              lineHeight: 1,
+              border: "0",
+            }}
+          >
+            {isLastTask ? "Завершить" : "Дальше >"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -16,6 +16,22 @@ import { tasks } from './tasks-data';
 
 type Zone = 'subject' | 'verb' | 'object';
 
+function formatTime(seconds: number) {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+function displayWord(word: string) {
+  return word.toLowerCase();
+}
+
+function sentenceCase(text: string) {
+  const s = text.trim();
+  if (!s) return s;
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
 function isVideo(path: string) {
   const p = path.toLowerCase();
   return p.endsWith('.mp4') || p.endsWith('.webm') || p.endsWith('.mov') || p.endsWith('.m4v');
@@ -61,9 +77,10 @@ export default function Test01Mame({ config, onComplete }: TestComponentProps) {
   const [incorrectCount, setIncorrectCount] = useState(0);
   const correctCountRef = useRef(0);
   const incorrectCountRef = useRef(0);
-  const [elapsedSec, setElapsedSec] = useState(0);
+  const [elapsedMs, setElapsedMs] = useState(0);
   const [availableWords, setAvailableWords] = useState<string[]>([]);
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
+  const [selectedFromZone, setSelectedFromZone] = useState<Zone | null>(null);
 
   const [dropped, setDropped] = useState<Record<Zone, string | null>>({
     subject: null,
@@ -78,17 +95,21 @@ export default function Test01Mame({ config, onComplete }: TestComponentProps) {
   });
 
   const [isChecking, setIsChecking] = useState(false);
-  const startMsRef = useRef<number>(0);
-  const phraseStartMsRef = useRef<number>(0);
+  const startedAtIsoRef = useRef<string>('');
+  const elapsedMsRef = useRef<number>(0);
+  const completedRef = useRef(false);
   // Prevent auto-check from firing during phrase switches (race between effects).
   const skipAutoCheckRef = useRef(false);
   // One zone = one final outcome based on FIRST check (like test-02-main).
   const slotFirstOutcomeRef = useRef<Record<string, 'correct' | 'incorrect'>>({});
 
   useEffect(() => {
-    startMsRef.current = Date.now();
-    phraseStartMsRef.current = Date.now();
-    const t = window.setInterval(() => setElapsedSec((s) => s + 1), 1000);
+    startedAtIsoRef.current = new Date().toISOString();
+    elapsedMsRef.current = 0;
+    const t = window.setInterval(() => {
+      elapsedMsRef.current += 100;
+      setElapsedMs(elapsedMsRef.current);
+    }, 100);
     return () => window.clearInterval(t);
   }, []);
 
@@ -96,6 +117,10 @@ export default function Test01Mame({ config, onComplete }: TestComponentProps) {
   const total = task.phrases.length;
 
   const wordsForPhrase = useMemo(() => [phrase.subject, phrase.verb, phrase.object], [phrase]);
+  const isPhraseComplete = useMemo(
+    () => validation.subject === true && validation.verb === true && validation.object === true,
+    [validation],
+  );
 
   const fillCorrect = () => {
     if (isChecking) return;
@@ -145,7 +170,6 @@ export default function Test01Mame({ config, onComplete }: TestComponentProps) {
   // Инициализация фразы: перемешать слова, сбросить зоны
   useEffect(() => {
     skipAutoCheckRef.current = true;
-    phraseStartMsRef.current = Date.now();
     setAvailableWords([...wordsForPhrase].sort(() => Math.random() - 0.5));
     setDropped({ subject: null, verb: null, object: null });
     setValidation({ subject: null, verb: null, object: null });
@@ -165,9 +189,10 @@ export default function Test01Mame({ config, onComplete }: TestComponentProps) {
     }
     if (!dropped.subject || !dropped.verb || !dropped.object) return;
     if (isChecking) return;
+    if (isPhraseComplete) return;
     handleCheck();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dropped]);
+  }, [dropped, isChecking, isPhraseComplete]);
 
   const handleCheck = () => {
     if (isChecking) return;
@@ -205,27 +230,9 @@ export default function Test01Mame({ config, onComplete }: TestComponentProps) {
     });
 
     if (allCorrect) {
-      // Переход к следующей фразе (или завершение)
+      // Correct: keep the phrase on screen (manual Next/Finish)
       setTimeout(() => {
-        if (currentPhraseIndex < total - 1) {
-          setIsChecking(false);
-          setCurrentPhraseIndex((i) => i + 1);
-        } else {
-          const completedAt = new Date().toISOString();
-          const startedAt = new Date(startMsRef.current).toISOString();
-          const result: TestResult = {
-            testId: config.id,
-            answers: [],
-            totalTime: Date.now() - startMsRef.current,
-            // Один "поле-ответ" = один итог: если была первая ошибка, верный ответ позже не считаем
-            correctCount: correctCountRef.current,
-            incorrectCount: incorrectCountRef.current,
-            startedAt,
-            completedAt,
-          };
-          setIsChecking(false);
-          onComplete(result);
-        }
+        setIsChecking(false);
       }, 1000);
       return;
     }
@@ -269,18 +276,50 @@ export default function Test01Mame({ config, onComplete }: TestComponentProps) {
   const handleWordSelect = (word: string) => {
     if (isChecking) return;
     setSelectedWord(word);
+    setSelectedFromZone(null);
   };
 
   const handleZoneClick = (zone: Zone) => {
     if (isChecking) return;
-    if (!selectedWord) return;
+    // If nothing is selected: allow picking a word from a filled zone to move/swap it.
+    if (!selectedWord) {
+      const current = dropped[zone];
+      if (!current) return;
+      setSelectedWord(current);
+      setSelectedFromZone(zone);
+      return;
+    }
+
+    // Moving/swapping between zones (no bank changes)
+    if (selectedFromZone) {
+      // Clicking the same zone cancels selection.
+      if (selectedFromZone === zone) {
+        setSelectedWord(null);
+        setSelectedFromZone(null);
+        return;
+      }
+
+      setDropped((prev) => {
+        const next = { ...prev };
+        const moving = prev[selectedFromZone];
+        const target = prev[zone];
+        // swap (or move into empty)
+        next[zone] = moving;
+        next[selectedFromZone] = target ?? null;
+        return next;
+      });
+      setSelectedWord(null);
+      setSelectedFromZone(null);
+      setValidation((prev) => ({ ...prev, [zone]: null, [selectedFromZone]: null }));
+      return;
+    }
 
     setDropped((prev) => {
       const next = { ...prev };
       // если в зоне уже есть слово — возвращаем его обратно
       const existing = next[zone];
       if (existing) {
-        setAvailableWords((w) => [...w, existing]);
+        setAvailableWords((w) => (w.includes(existing) ? w : [...w, existing]));
       }
       next[zone] = selectedWord;
       return next;
@@ -312,14 +351,15 @@ export default function Test01Mame({ config, onComplete }: TestComponentProps) {
 
     if (validation[zone] === true) return { ...base, border: '2px solid #10b981', background: '#ecfdf5' };
     if (validation[zone] === false) return { ...base, border: '2px solid #ef4444', background: '#fef2f2' };
+    if (selectedFromZone === zone) return { ...base, border: '2px solid #00CED1', background: '#e6fffe', boxShadow: '0 0 0 2px rgba(0,206,209,0.25)' };
     if (dropped[zone]) return { ...base, border: '2px solid #00CED1', background: '#e6fffe' };
     return base;
   };
 
   const reset = () => {
-    startMsRef.current = Date.now();
-    phraseStartMsRef.current = Date.now();
-    setElapsedSec(0);
+    startedAtIsoRef.current = new Date().toISOString();
+    elapsedMsRef.current = 0;
+    setElapsedMs(0);
     setCorrectCount(0);
     setIncorrectCount(0);
     correctCountRef.current = 0;
@@ -328,162 +368,122 @@ export default function Test01Mame({ config, onComplete }: TestComponentProps) {
     setCurrentPhraseIndex(0);
     setAttemptCount(0);
     setSelectedWord(null);
+    setSelectedFromZone(null);
     setValidation({ subject: null, verb: null, object: null });
     setDropped({ subject: null, verb: null, object: null });
     setAvailableWords([...wordsForPhrase].sort(() => Math.random() - 0.5));
     setIsChecking(false);
+    completedRef.current = false;
   };
 
-  const handleNext = () => {
-    if (currentPhraseIndex < total - 1) {
-      setCurrentPhraseIndex((i) => i + 1);
-    }
+  const finishTest = () => {
+    if (completedRef.current) return;
+    completedRef.current = true;
+    const completedAt = new Date().toISOString();
+    const startedAt = startedAtIsoRef.current || new Date().toISOString();
+    const result: TestResult = {
+      testId: config.id,
+      answers: [],
+      totalTime: elapsedMsRef.current,
+      correctCount: correctCountRef.current,
+      incorrectCount: incorrectCountRef.current,
+      startedAt,
+      completedAt,
+    };
+    onComplete(result);
   };
 
-  const handlePrevious = () => {
-    if (currentPhraseIndex > 0) {
-      setCurrentPhraseIndex((i) => i - 1);
-    }
-  };
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs
-      .toString()
-      .padStart(2, "0")}`;
+  const handleNextPhrase = () => {
+    if (isChecking) return;
+    if (!isPhraseComplete) return;
+    if (currentPhraseIndex >= total - 1) return;
+    setCurrentPhraseIndex((i) => i + 1);
   };
 
   return (
-    <div style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
-      {/* Верхнее меню как в оригинальном RAND */}
-      <div
-        style={{
-          background: "#ffffff",
-          borderRadius: 16,
-          border: "1px solid #e5e7eb",
-          padding: 16,
-          boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
-          marginBottom: 16,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 16,
-          flexWrap: "wrap",
-        }}
-      >
-        <div style={{ width: "100%", fontSize: 20, fontWeight: 900, color: "#0f172a" }}>
+    <div
+      style={{
+        height: '100%',
+        padding: 16,
+        maxWidth: 1100,
+        margin: '0 auto',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      {/* Header (UI aligned with test-02-main, logic preserved) */}
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-4 rounded-xl bg-white p-4 shadow">
+        <div className="w-full text-xl font-bold text-slate-900">
+          {typeof config.seqNum === 'number' ? `${config.seqNum}. ` : ''}
           {config.name}
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              fontFamily: "monospace",
-              fontSize: 18,
-              fontWeight: 700,
-              color: "#0f172a",
-            }}
+        <div className="flex flex-wrap items-center gap-3">
+          <select
+            value={currentPhraseIndex}
+            onChange={(e) => setCurrentPhraseIndex(Number(e.target.value))}
+            className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
+            aria-label="Выбор задания"
           >
-            <span style={{ color: "#64748b", fontWeight: 600 }}>⏱</span>
-            {formatTime(elapsedSec)}
-          </div>
-          <div style={{ width: 1, height: 24, background: "#e5e7eb" }} />
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ fontSize: 13, color: "#6b7280" }}>Верно:</span>
-              <span style={{ fontWeight: 700, color: "#10b981" }}>
-                {correctCount}
-              </span>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ fontSize: 13, color: "#6b7280" }}>Ошибок:</span>
-              <span style={{ fontWeight: 700, color: "#ef4444" }}>
-                {incorrectCount}
-              </span>
-            </div>
+            {task.phrases.map((_, idx) => (
+              <option key={idx} value={idx}>
+                Задание {idx + 1}
+              </option>
+            ))}
+          </select>
+          <div className="text-lg font-semibold">
+            Задание {currentPhraseIndex + 1} из {total}
           </div>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div className="flex items-center gap-4">
+          <span className="font-semibold text-green-600">✓ {correctCount}</span>
+          <span className="font-semibold text-red-600">✗ {incorrectCount}</span>
+          <span className="font-mono">{formatTime(Math.floor(elapsedMs / 1000))}</span>
           <button
             type="button"
-            onClick={reset}
-            style={{
-              padding: "8px 12px",
-              borderRadius: 10,
-              border: "1px solid #e5e7eb",
-              background: "#ffffff",
-              cursor: "pointer",
-              fontWeight: 700,
-            }}
+            onClick={finishTest}
+            className="rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
           >
-            Сброс
+            Завершить тест
           </button>
-          <div style={{ width: 1, height: 24, background: "#e5e7eb" }} />
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <button
-              type="button"
-              onClick={handlePrevious}
-              disabled={currentPhraseIndex === 0}
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 10,
-                border: "1px solid #e5e7eb",
-                background: "#ffffff",
-                cursor: currentPhraseIndex === 0 ? "not-allowed" : "pointer",
-                opacity: currentPhraseIndex === 0 ? 0.5 : 1,
-                fontWeight: 900,
-              }}
-              aria-label="Предыдущая"
-            >
-              ‹
-            </button>
-            <div style={{ minWidth: 80, textAlign: "center", fontWeight: 700 }}>
-              {currentPhraseIndex + 1} / {total}
-            </div>
-            <button
-              type="button"
-              onClick={handleNext}
-              disabled={currentPhraseIndex === total - 1}
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 10,
-                border: "1px solid #e5e7eb",
-                background: "#ffffff",
-                cursor:
-                  currentPhraseIndex === total - 1 ? "not-allowed" : "pointer",
-                opacity: currentPhraseIndex === total - 1 ? 0.5 : 1,
-                fontWeight: 900,
-              }}
-              aria-label="Следующая"
-            >
-              ›
-            </button>
-          </div>
         </div>
+      </div>
+
+      {/* Instruction (as in design screenshot) */}
+      <div style={{ textAlign: 'center', marginBottom: 10 }}>
+        <div style={{ fontSize: 28, fontWeight: 500, color: '#0f172a', lineHeight: 1.1 }}>Составьте фразу из слов</div>
       </div>
 
       <div
         style={{
-          background: "#ffffff",
-          border: "1px solid #e5e7eb",
+          background: '#ffffff',
+          border: '1px solid #e5e7eb',
           borderRadius: 16,
-          overflow: "hidden",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+          overflow: 'hidden',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+          flex: '1 1 auto',
+          minHeight: 0,
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
-        <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', background: '#ffffff' }}>
+        <div
+          style={{
+            position: 'relative',
+            width: '100%',
+            height: 'clamp(180px, 34vh, 340px)',
+            marginTop: 10,
+            background: '#ffffff',
+            flex: '0 0 auto',
+          }}
+        >
           <MediaViewer src={phrase.mediaPath} alt="Иллюстрация" />
         </div>
 
-        <div style={{ padding: 20 }}>
-          <div style={{ marginBottom: 16 }}>
+        <div style={{ padding: 14, overflow: 'hidden', flex: '1 1 auto', minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ marginBottom: 10 }}>
             <div style={{ textAlign: 'center', color: '#64748b', fontSize: 14, marginBottom: 10 }}>
               Выберите слово:
             </div>
@@ -501,53 +501,120 @@ export default function Test01Mame({ config, onComplete }: TestComponentProps) {
                       border: `1px solid ${active ? '#00CED1' : '#e5e7eb'}`,
                       background: active ? '#00CED1' : '#ffffff',
                       color: active ? '#ffffff' : '#0f172a',
-                      padding: '10px 14px',
-                      fontSize: 16,
+                      padding: '8px 12px',
+                      fontSize: 15,
                       fontWeight: 700,
                       cursor: isChecking ? 'default' : 'pointer',
                     }}
                   >
-                    {word}
+                    {displayWord(word)}
                   </button>
                 );
               })}
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14 }}>
-            <div>
-              <div style={{ textAlign: 'center', color: '#64748b', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>
-                КТО?
+          {isPhraseComplete ? (
+            <div
+              style={{
+                minHeight: 56,
+                borderRadius: 10,
+                border: '2px solid #10b981',
+                background: '#ecfdf5',
+                padding: '12px 14px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 600,
+                fontSize: 18,
+                color: '#0f172a',
+                textAlign: 'center',
+              }}
+            >
+              {sentenceCase(`${displayWord(phrase.subject)} ${displayWord(phrase.verb)} ${displayWord(phrase.object)}`)}
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14 }}>
+              <div>
+                <div style={{ textAlign: 'center', color: '#64748b', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>
+                  КТО?
+                </div>
+                <div style={zoneStyle('subject')} onClick={() => handleZoneClick('subject')}>
+                  {dropped.subject ? displayWord(dropped.subject) : <span style={{ color: '#94a3b8', fontWeight: 600, fontSize: 14 }}>Нажмите сюда</span>}
+                </div>
               </div>
-              <div style={zoneStyle('subject')} onClick={() => handleZoneClick('subject')}>
-                {dropped.subject ?? <span style={{ color: '#94a3b8', fontWeight: 600, fontSize: 14 }}>Нажмите сюда</span>}
+
+              <div>
+                <div style={{ textAlign: 'center', color: '#64748b', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>
+                  ЧТО ДЕЛАЕТ?
+                </div>
+                <div style={zoneStyle('verb')} onClick={() => handleZoneClick('verb')}>
+                  {dropped.verb ? displayWord(dropped.verb) : <span style={{ color: '#94a3b8', fontWeight: 600, fontSize: 14 }}>Нажмите сюда</span>}
+                </div>
+              </div>
+
+              <div>
+                <div style={{ textAlign: 'center', color: '#64748b', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>
+                  ЧТО?
+                </div>
+                <div style={zoneStyle('object')} onClick={() => handleZoneClick('object')}>
+                  {dropped.object ? displayWord(dropped.object) : <span style={{ color: '#94a3b8', fontWeight: 600, fontSize: 14 }}>Нажмите сюда</span>}
+                </div>
               </div>
             </div>
+          )}
 
-            <div>
-              <div style={{ textAlign: 'center', color: '#64748b', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>
-                ЧТО ДЕЛАЕТ?
-              </div>
-              <div style={zoneStyle('verb')} onClick={() => handleZoneClick('verb')}>
-                {dropped.verb ?? <span style={{ color: '#94a3b8', fontWeight: 600, fontSize: 14 }}>Нажмите сюда</span>}
-              </div>
-            </div>
-
-            <div>
-              <div style={{ textAlign: 'center', color: '#64748b', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>
-                ЧТО?
-              </div>
-              <div style={zoneStyle('object')} onClick={() => handleZoneClick('object')}>
-                {dropped.object ?? <span style={{ color: '#94a3b8', fontWeight: 600, fontSize: 14 }}>Нажмите сюда</span>}
-              </div>
-            </div>
-          </div>
-
-          <div style={{ marginTop: 16, textAlign: 'center', color: '#64748b', fontSize: 13 }}>
+          <div style={{ marginTop: 'auto', paddingTop: 10, textAlign: 'center', color: '#64748b', fontSize: 13 }}>
             Попытка: <strong style={{ color: '#0f172a' }}>{attemptCount + 1}</strong>
           </div>
         </div>
       </div>
+
+    {isPhraseComplete && currentPhraseIndex < total - 1 && (
+      <div style={{ marginTop: 14, display: 'flex', justifyContent: 'center' }}>
+        <button
+          type="button"
+          onClick={handleNextPhrase}
+          style={{
+            height: 46,
+            minWidth: 220,
+            padding: '0 28px',
+            borderRadius: 16,
+            background: '#7dd3fc',
+            color: '#ffffff',
+            fontWeight: 500,
+            fontSize: 32,
+            lineHeight: 1,
+            border: '0',
+          }}
+        >
+          Дальше &gt;
+        </button>
+      </div>
+    )}
+
+    {isPhraseComplete && currentPhraseIndex === total - 1 && (
+      <div style={{ marginTop: 14, display: 'flex', justifyContent: 'center' }}>
+        <button
+          type="button"
+          onClick={finishTest}
+          style={{
+            height: 46,
+            minWidth: 220,
+            padding: '0 28px',
+            borderRadius: 16,
+            background: '#7dd3fc',
+            color: '#ffffff',
+            fontWeight: 500,
+            fontSize: 32,
+            lineHeight: 1,
+            border: '0',
+          }}
+        >
+          Завершить
+        </button>
+      </div>
+    )}
     </div>
   );
 }

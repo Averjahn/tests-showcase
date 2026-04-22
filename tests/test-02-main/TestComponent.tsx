@@ -51,6 +51,7 @@ export default function Test02Main({ config, onComplete }: TestComponentProps) {
   const [selectedPart, setSelectedPart] = useState<string | null>(null);
   const [placedParts, setPlacedParts] = useState<PlacedPart[]>([]);
   const [availableParts, setAvailableParts] = useState<string[]>(() => [...exercises[0]!.parts]);
+  const [readyToFinish, setReadyToFinish] = useState(false);
 
   const [correctCount, setCorrectCount] = useState(0);
   const [incorrectCount, setIncorrectCount] = useState(0);
@@ -298,6 +299,7 @@ export default function Test02Main({ config, onComplete }: TestComponentProps) {
     setElapsedMs(0);
     setCorrectCount(0);
     setIncorrectCount(0);
+    setReadyToFinish(false);
 
     setCurrentExerciseIndex(0);
     setSelectedPart(null);
@@ -310,6 +312,7 @@ export default function Test02Main({ config, onComplete }: TestComponentProps) {
     setSelectedPart(null);
     setPlacedParts([]);
     setAvailableParts(shuffleArray([...exercises[index]!.parts]));
+    setReadyToFinish(false);
   };
 
   const handleNextExercise = () => {
@@ -319,6 +322,7 @@ export default function Test02Main({ config, onComplete }: TestComponentProps) {
     setSelectedPart(null);
     setPlacedParts([]);
     setAvailableParts(shuffleArray([...exercises[nextIndex]!.parts]));
+    setReadyToFinish(false);
   };
 
   useTestAutoRun({
@@ -328,13 +332,17 @@ export default function Test02Main({ config, onComplete }: TestComponentProps) {
     submitCurrent: handleNextExercise,
   });
 
-  // Завершение теста: когда выполнены все задания и заполнены 10 корректных слотов на последнем задании
+  // Готовность к завершению: когда заполнены 10 корректных слотов на последнем задании
   useEffect(() => {
     if (!isExerciseComplete) return;
     if (currentExerciseIndex !== exercises.length - 1) return;
-    if (completedRef.current) return;
+    setReadyToFinish(true);
+  }, [config.id, currentExerciseIndex, isExerciseComplete, onComplete]);
 
+  const finishTest = () => {
+    if (completedRef.current) return;
     completedRef.current = true;
+
     const completedAt = new Date().toISOString();
     const startedAt = startedAtIsoRef.current || new Date().toISOString();
 
@@ -349,257 +357,252 @@ export default function Test02Main({ config, onComplete }: TestComponentProps) {
     };
 
     onComplete(result);
-  }, [config.id, currentExerciseIndex, isExerciseComplete, onComplete]);
+  };
 
   return (
     <div style={{ padding: 24, maxWidth: 1100, margin: '0 auto' }}>
-      {/* Header */}
-      <div
-        style={{
-          background: '#ffffff',
-          borderRadius: 16,
-          border: '1px solid #e5e7eb',
-          padding: 16,
-          boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-          marginBottom: 16,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 16,
-          flexWrap: 'wrap',
-        }}
-      >
-        <div style={{ width: '100%', fontSize: 20, fontWeight: 900, color: '#0f172a' }}>{config.name}</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ fontWeight: 800, color: '#0f172a' }}>Словообразование</div>
-          <div style={{ width: 1, height: 22, background: '#e5e7eb' }} />
-          <div style={{ fontFamily: 'monospace', fontWeight: 800, color: '#0f172a' }}>
-            ⏱ {formatTime(Math.floor(elapsedMs / 1000))}
+      {/* Header (UI aligned with test-21-main, logic preserved) */}
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-xl bg-white p-4 shadow">
+        <div className="w-full text-xl font-bold text-slate-900">
+          {typeof config.seqNum === 'number' ? `${config.seqNum}. ` : ''}
+          {config.name}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <select
+            value={currentExerciseIndex}
+            onChange={(e) => handleExerciseSelect(Number(e.target.value))}
+            className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
+            aria-label="Выбор задания"
+          >
+            {exercises.map((ex, idx) => (
+              <option key={ex.id} value={idx}>
+                {ex.id} ({ex.commonPart})
+              </option>
+            ))}
+          </select>
+          <div className="text-lg font-semibold">
+            Задание {currentExercise.id} из {exercises.length}
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#334155', fontWeight: 700 }}>
-            Задание:
-            <select
-              value={currentExerciseIndex}
-              onChange={(e) => handleExerciseSelect(Number(e.target.value))}
-              style={{
-                border: '1px solid #e5e7eb',
-                borderRadius: 10,
-                padding: '8px 10px',
-                background: '#ffffff',
-                fontWeight: 700,
-              }}
-            >
-              {exercises.map((ex, idx) => (
-                <option key={ex.id} value={idx}>
-                  {ex.id} ({ex.commonPart})
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <div style={{ width: 1, height: 22, background: '#e5e7eb' }} />
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ fontWeight: 800, color: '#10b981' }}>Верно: {correctCount}</div>
-            <div style={{ fontWeight: 800, color: '#ef4444' }}>Ошибок: {incorrectCount}</div>
-          </div>
-
+        <div className="flex items-center gap-4">
+          <span className="font-semibold text-green-600">✓ {correctCount}</span>
+          <span className="font-semibold text-red-600">✗ {incorrectCount}</span>
+          <span className="font-mono">{formatTime(Math.floor(elapsedMs / 1000))}</span>
           <button
             type="button"
-            onClick={handleRestart}
-            style={{
-              padding: '10px 12px',
-              borderRadius: 10,
-              border: '1px solid #e5e7eb',
-              background: '#ffffff',
-              fontWeight: 800,
-            }}
+            onClick={finishTest}
+            className="rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
           >
-            Сброс
+            Завершить тест
           </button>
         </div>
       </div>
 
-      {/* Instruction */}
-      <div style={{ textAlign: 'center', fontSize: 18, fontWeight: 800, color: '#334155', marginBottom: 12 }}>
-        Добавьте части слова
-      </div>
-
-      {/* Bank */}
-      <div
-        style={{
-          borderRadius: 16,
-          border: '1px solid #e5e7eb',
-          background: '#ffffff',
-          padding: 16,
-          boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-          marginBottom: 16,
-        }}
-      >
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center' }}>
-          {availableParts.map((part, idx) => {
-            const active = selectedPart === part;
-            return (
-              <button
-                key={`${part}-${idx}`}
-                type="button"
-                onClick={() => setSelectedPart(part)}
-                style={{
-                  borderRadius: 12,
-                  border: `2px solid ${active ? '#00CED1' : '#e5e7eb'}`,
-                  background: active ? '#e6fffe' : '#f8fafc',
-                  color: '#0f172a',
-                  padding: '10px 14px',
-                  fontSize: 16,
-                  fontWeight: 800,
-                }}
-              >
-                {part}
-              </button>
-            );
-          })}
+      {/* Instruction (as in design screenshot) */}
+      <div style={{ textAlign: 'center', marginBottom: 18 }}>
+        <div style={{ fontSize: 28, fontWeight: 500, color: '#0f172a', lineHeight: 1.1 }}>Добавьте части слова</div>
+        <div style={{ marginTop: 6, fontSize: 16, fontWeight: 600, color: '#334155' }}>
+          Выберите слог и подставьте его в начало или конец слова
         </div>
       </div>
 
-      {/* Columns */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-        {/* Left: ___COMMON */}
-        <div
-          style={{
-            borderRadius: 16,
-            border: '1px solid #e5e7eb',
-            background: '#ffffff',
-            padding: 16,
-            boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-          }}
-        >
-          <div style={{ fontWeight: 800, color: '#334155', marginBottom: 10, textAlign: 'center' }}>
-            ___{common.left}
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      {/* Bank (flat pills row) */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center', marginBottom: 24 }}>
+        {availableParts.map((part, idx) => {
+          const active = selectedPart === part;
+          return (
+            <button
+              key={`${part}-${idx}`}
+              type="button"
+              onClick={() => setSelectedPart(part)}
+              style={{
+                borderRadius: 8,
+                border: '2px solid transparent',
+                borderColor: active ? '#60a5fa' : 'transparent',
+                background: active ? '#ffffff' : '#f1f5f9',
+                color: '#0f172a',
+                padding: '8px 14px',
+                fontSize: 20,
+                fontWeight: 500,
+                boxShadow: active ? '0 0 0 3px rgba(96,165,250,0.35)' : 'none',
+                transition: 'box-shadow 120ms ease, background-color 120ms ease, border-color 120ms ease',
+              }}
+            >
+              {part}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Columns (as in design screenshot) */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 36, justifyItems: 'stretch' }}>
+        {/* Left: ____ + COMMON */}
+        <div style={{ width: '100%', maxWidth: 180, marginLeft: 'auto' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {[0, 1, 2, 3, 4].map((position) => {
               const placed = placedParts.find((p) => p.position === position && p.column === 'left');
               const isCorrect = placed?.status === 'correct';
               const isIncorrect = placed?.status === 'incorrect';
+              const borderColor = isCorrect ? '#10b981' : isIncorrect ? '#ef4444' : '#7dd3fc';
+              const bg = isCorrect ? '#ecfdf5' : isIncorrect ? '#fee2e2' : '#e0f2fe';
+              const borderStyle = isCorrect || isIncorrect ? 'solid' : 'dashed';
+              const borderWidth = isCorrect || isIncorrect ? 2 : 1;
               return (
-                <div key={position} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                  <button
-                    type="button"
-                    onClick={() => handleSlotClick(position, 'left')}
-                    style={{
-                      flex: 1,
-                      height: 52,
-                      borderRadius: 12,
-                      border: `2px ${placed ? 'solid' : 'dashed'} ${
-                        isCorrect ? '#10b981' : isIncorrect ? '#ef4444' : '#cbd5e1'
-                      }`,
-                      background: isCorrect
-                        ? '#ecfdf5'
-                        : isIncorrect
-                          ? '#fef2f2'
-                          : selectedPart
-                            ? '#f0fdff'
-                            : '#f8fafc',
-                      fontWeight: 900,
-                      fontSize: 18,
-                      color: '#0f172a',
-                    }}
-                  >
-                    {placed ? placed.part : '____'}
-                  </button>
-                  <div
-                    style={{
-                      width: 86,
-                      height: 52,
-                      borderRadius: 12,
-                      background: '#e0f2fe',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 900,
-                      color: '#0369a1',
-                    }}
-                  >
-                    {common.left}
-                  </div>
-                </div>
+                <button
+                  key={position}
+                  type="button"
+                  onClick={() => handleSlotClick(position, 'left')}
+                  onMouseDown={(e) => e.preventDefault()}
+                  style={{
+                    position: 'relative',
+                    height: 46,
+                    width: '100%',
+                    borderRadius: 8,
+                    border: `${borderWidth}px ${borderStyle} ${borderColor}`,
+                    background: bg,
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '0 16px',
+                    gap: 12,
+                    outline: 'none',
+                    boxShadow: selectedPart && !placed ? '0 0 0 2px rgba(59,130,246,0.35)' : 'none',
+                  }}
+                >
+                  {isCorrect ? (
+                    <span
+                      style={{
+                        width: '100%',
+                        textAlign: 'center',
+                        fontWeight: 500,
+                        fontSize: 22,
+                        color: '#0f172a',
+                        letterSpacing: 0.2,
+                      }}
+                    >
+                      {placed ? `${placed.part}${common.left}` : ''}
+                    </span>
+                  ) : isIncorrect ? (
+                    <span
+                      style={{
+                        width: '100%',
+                        textAlign: 'center',
+                        fontWeight: 500,
+                        fontSize: 22,
+                        color: '#0f172a',
+                        letterSpacing: 0.2,
+                      }}
+                    >
+                      {placed ? `${placed.part} ${common.left}` : ''}
+                    </span>
+                  ) : (
+                    <>
+                      <span style={{ flex: 1, position: 'relative', height: 22, display: 'flex', alignItems: 'flex-end' }}>
+                        <span
+                          style={{
+                            position: 'absolute',
+                            left: 0,
+                            right: 0,
+                            bottom: 2,
+                            borderBottom: `2px solid ${isIncorrect ? '#ef4444' : '#0f172a'}`,
+                          }}
+                        />
+                        <span style={{ width: '100%', textAlign: 'center', fontWeight: 500, fontSize: 20, color: '#0f172a' }}>
+                          {placed ? placed.part : ''}
+                        </span>
+                      </span>
+                      <span style={{ fontWeight: 500, fontSize: 22, color: '#0f172a' }}>{common.left}</span>
+                    </>
+                  )}
+                </button>
               );
             })}
           </div>
         </div>
 
-        {/* Right: COMMON___ */}
-        <div
-          style={{
-            borderRadius: 16,
-            border: '1px solid #e5e7eb',
-            background: '#ffffff',
-            padding: 16,
-            boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-          }}
-        >
-          <div style={{ fontWeight: 800, color: '#334155', marginBottom: 10, textAlign: 'center' }}>
-            {common.right}___
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {/* Right: COMMON + ____ */}
+        <div style={{ width: '100%', maxWidth: 180, marginRight: 'auto' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {[0, 1, 2, 3, 4].map((position) => {
               const placed = placedParts.find((p) => p.position === position && p.column === 'right');
               const isCorrect = placed?.status === 'correct';
               const isIncorrect = placed?.status === 'incorrect';
+              const borderColor = isCorrect ? '#10b981' : isIncorrect ? '#ef4444' : '#7dd3fc';
+              const bg = isCorrect ? '#ecfdf5' : isIncorrect ? '#fee2e2' : '#e0f2fe';
+              const borderStyle = isCorrect || isIncorrect ? 'solid' : 'dashed';
+              const borderWidth = isCorrect || isIncorrect ? 2 : 1;
               return (
-                <div key={position} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                  <div
-                    style={{
-                      width: 86,
-                      height: 52,
-                      borderRadius: 12,
-                      background: '#e0f2fe',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 900,
-                      color: '#0369a1',
-                    }}
-                  >
-                    {common.right}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => handleSlotClick(position, 'right')}
-                    style={{
-                      flex: 1,
-                      height: 52,
-                      borderRadius: 12,
-                      border: `2px ${placed ? 'solid' : 'dashed'} ${
-                        isCorrect ? '#10b981' : isIncorrect ? '#ef4444' : '#cbd5e1'
-                      }`,
-                      background: isCorrect
-                        ? '#ecfdf5'
-                        : isIncorrect
-                          ? '#fef2f2'
-                          : selectedPart
-                            ? '#f0fdff'
-                            : '#f8fafc',
-                      fontWeight: 900,
-                      fontSize: 18,
-                      color: '#0f172a',
-                    }}
-                  >
-                    {placed ? placed.part : '____'}
-                  </button>
-                </div>
+                <button
+                  key={position}
+                  type="button"
+                  onClick={() => handleSlotClick(position, 'right')}
+                  onMouseDown={(e) => e.preventDefault()}
+                  style={{
+                    position: 'relative',
+                    height: 46,
+                    width: '100%',
+                    borderRadius: 8,
+                    border: `${borderWidth}px ${borderStyle} ${borderColor}`,
+                    background: bg,
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '0 16px',
+                    gap: 12,
+                    outline: 'none',
+                    boxShadow: selectedPart && !placed ? '0 0 0 2px rgba(59,130,246,0.35)' : 'none',
+                  }}
+                >
+                  {isCorrect ? (
+                    <span
+                      style={{
+                        width: '100%',
+                        textAlign: 'center',
+                        fontWeight: 500,
+                        fontSize: 22,
+                        color: '#0f172a',
+                        letterSpacing: 0.2,
+                      }}
+                    >
+                      {placed ? `${common.right}${placed.part}` : ''}
+                    </span>
+                  ) : isIncorrect ? (
+                    <span
+                      style={{
+                        width: '100%',
+                        textAlign: 'center',
+                        fontWeight: 500,
+                        fontSize: 22,
+                        color: '#0f172a',
+                        letterSpacing: 0.2,
+                      }}
+                    >
+                      {placed ? `${common.right} ${placed.part}` : ''}
+                    </span>
+                  ) : (
+                    <>
+                      <span style={{ fontWeight: 500, fontSize: 22, color: '#0f172a' }}>{common.right}</span>
+                      <span style={{ flex: 1, position: 'relative', height: 22, display: 'flex', alignItems: 'flex-end' }}>
+                        <span
+                          style={{
+                            position: 'absolute',
+                            left: 0,
+                            right: 0,
+                            bottom: 2,
+                            borderBottom: `2px solid ${isIncorrect ? '#ef4444' : '#0f172a'}`,
+                          }}
+                        />
+                        <span style={{ width: '100%', textAlign: 'center', fontWeight: 500, fontSize: 20, color: '#0f172a' }}>
+                          {placed ? placed.part : ''}
+                        </span>
+                      </span>
+                    </>
+                  )}
+                </button>
               );
             })}
           </div>
         </div>
-      </div>
-
-      {/* Progress */}
-      <div style={{ marginTop: 16, textAlign: 'center', color: '#64748b', fontWeight: 700 }}>
-        Задание {currentExercise.id} из {exercises.length} • Правильно размещено: {correctPlaced} / 10
       </div>
 
       {isExerciseComplete && currentExerciseIndex < exercises.length - 1 && (
@@ -608,33 +611,43 @@ export default function Test02Main({ config, onComplete }: TestComponentProps) {
             type="button"
             onClick={handleNextExercise}
             style={{
-              padding: '12px 18px',
-              borderRadius: 12,
-              background: '#10b981',
+              height: 46,
+              minWidth: 220,
+              padding: '0 28px',
+              borderRadius: 16,
+              background: '#7dd3fc',
               color: '#ffffff',
-              fontWeight: 900,
-              fontSize: 16,
+              fontWeight: 500,
+              fontSize: 32,
+              lineHeight: 1,
+              border: '0',
             }}
           >
-            Следующее задание
+            Дальше &gt;
           </button>
         </div>
       )}
 
-      {isExerciseComplete && currentExerciseIndex === exercises.length - 1 && (
-        <div
-          style={{
-            marginTop: 16,
-            borderRadius: 16,
-            padding: 16,
-            background: '#ecfdf5',
-            border: '1px solid #bbf7d0',
-            textAlign: 'center',
-            fontWeight: 900,
-            color: '#047857',
-          }}
-        >
-          Поздравляем! Вы завершили все задания.
+      {readyToFinish && currentExerciseIndex === exercises.length - 1 && (
+        <div style={{ marginTop: 14, display: 'flex', justifyContent: 'center' }}>
+          <button
+            type="button"
+            onClick={finishTest}
+            style={{
+              height: 46,
+              minWidth: 220,
+              padding: '0 28px',
+              borderRadius: 16,
+              background: '#7dd3fc',
+              color: '#ffffff',
+              fontWeight: 500,
+              fontSize: 32,
+              lineHeight: 1,
+              border: '0',
+            }}
+          >
+            Завершить
+          </button>
         </div>
       )}
     </div>

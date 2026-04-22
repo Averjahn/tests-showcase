@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { TestComponentProps, TestResult } from "../shared/TestInterface";
 import { useTestDebugShortcuts } from "../shared/useTestDebugShortcuts";
 import { useTestAutoRun } from "../shared/useTestAutoRun";
@@ -16,6 +16,12 @@ function shuffle<T>(arr: T[]) {
     [a[i], a[j]] = [a[j]!, a[i]!];
   }
   return a;
+}
+
+function formatTime(seconds: number) {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
 }
 
 export default function Test04Main({ config, onComplete }: TestComponentProps) {
@@ -80,6 +86,7 @@ export default function Test04Main({ config, onComplete }: TestComponentProps) {
   };
 
   const canCheck = useMemo(() => placed.every((x) => !!x), [placed]);
+  const isBlockComplete = useMemo(() => statuses.every((s) => s === "correct"), [statuses]);
 
   const check = (placedEndings: Array<string | null>) => {
     if (!canCheck || isChecking) return;
@@ -99,22 +106,6 @@ export default function Test04Main({ config, onComplete }: TestComponentProps) {
     if (allCorrect) {
       window.setTimeout(() => {
         setIsChecking(false);
-        if (blockIndex < exerciseBlocks.length - 1) {
-          setBlockIndex((b) => b + 1);
-          return;
-        }
-        if (completedRef.current) return;
-        completedRef.current = true;
-        const result: TestResult = {
-          testId: config.id,
-          answers: [],
-          totalTime: elapsedMsRef.current,
-          correctCount: correctCountRef.current,
-          incorrectCount: incorrectCountRef.current,
-          startedAt: startedAtIsoRef.current || new Date().toISOString(),
-          completedAt: new Date().toISOString(),
-        };
-        onComplete(result);
       }, 1000);
       return;
     }
@@ -146,7 +137,8 @@ export default function Test04Main({ config, onComplete }: TestComponentProps) {
           else if (v) returned.push(v);
         }
         setPlaced(keep);
-        setStatuses([null, null, null]);
+        // Keep already solved fans highlighted green in subsequent attempts.
+        setStatuses(nextStatuses.map((s) => (s === "correct" ? "correct" : null)));
         setSelectedEnding(null);
         setBank((prev) => shuffle([...prev.filter((x) => !returned.includes(x)), ...returned]));
         setIsChecking(false);
@@ -165,7 +157,8 @@ export default function Test04Main({ config, onComplete }: TestComponentProps) {
         else needed.push(block.fans[i]!.correctEnding);
       }
       setPlaced(keep);
-      setStatuses([null, null, null]);
+      // Keep already solved fans highlighted green in subsequent attempts.
+      setStatuses(nextStatuses.map((s) => (s === "correct" ? "correct" : null)));
       setSelectedEnding(null);
       setBank(shuffle(needed));
       setIsChecking(false);
@@ -180,10 +173,12 @@ export default function Test04Main({ config, onComplete }: TestComponentProps) {
       }
       return;
     }
+    // Prevent re-check loop after the block is already solved.
+    if (isBlockComplete) return;
     if (!canCheck) return;
     if (isChecking) return;
     check(placed);
-  }, [canCheck, isChecking, placed]);
+  }, [canCheck, isChecking, placed, isBlockComplete]);
 
   const pickEnding = (e: string) => {
     if (isChecking) return;
@@ -247,167 +242,268 @@ export default function Test04Main({ config, onComplete }: TestComponentProps) {
     onFillCorrect: fillCorrect,
     allowWhenTyping: true,
   });
+
+  const handleNextBlock = () => {
+    if (isChecking) return;
+    if (!isBlockComplete) return;
+    if (blockIndex >= exerciseBlocks.length - 1) return;
+    setBlockIndex((b) => b + 1);
+  };
+
+  const finishTest = () => {
+    if (isChecking) return;
+    if (completedRef.current) return;
+    completedRef.current = true;
+    const result: TestResult = {
+      testId: config.id,
+      answers: [],
+      totalTime: elapsedMsRef.current,
+      correctCount: correctCountRef.current,
+      incorrectCount: incorrectCountRef.current,
+      startedAt: startedAtIsoRef.current || new Date().toISOString(),
+      completedAt: new Date().toISOString(),
+    };
+    onComplete(result);
+  };
+
   useTestAutoRun({
     totalSteps: exerciseBlocks.length,
     fillRandom,
     fillCorrect,
-    submitCurrent: () => {},
+    submitCurrent: handleNextBlock,
     disabled: isChecking,
   });
 
-  const endingBtnStyle = (ending: string): CSSProperties => {
-    const active = selectedEnding === ending;
-    const placedSomewhere = placed.includes(ending);
-    return {
-      padding: "10px 14px",
-      borderRadius: 14,
-      border: active ? "2px solid #00CED1" : "2px solid #e5e7eb",
-      background: placedSomewhere ? "#e2e8f0" : active ? "#e6fffe" : "#f8fafc",
-      fontWeight: 900,
-      fontSize: 18,
-      cursor: isChecking || placedSomewhere ? "not-allowed" : "pointer",
-      opacity: placedSomewhere ? 0.6 : 1,
-      transition: "all 0.15s ease",
-      userSelect: "none",
-    };
-  };
-
-  const fanSlotStyle = (fanIndex: number): CSSProperties => {
-    const st = statuses[fanIndex];
-    const base: CSSProperties = {
-      minHeight: 58,
-      borderRadius: 14,
-      border: "2px dashed #cbd5e1",
-      background: "#f8fafc",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: "10px 12px",
-      cursor: isChecking ? "default" : "pointer",
-      fontWeight: 900,
-      fontSize: 18,
-      color: "#0f172a",
-      userSelect: "none",
-      transition: "all 0.15s ease",
-    };
-    if (st === "correct") return { ...base, border: "2px solid #10b981", background: "#ecfdf5" };
-    if (st === "incorrect") return { ...base, border: "2px solid #ef4444", background: "#fef2f2" };
-    if (placed[fanIndex]) return { ...base, border: "2px solid #00CED1", background: "#e6fffe" };
-    return base;
-  };
-
   return (
     <div style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
-      <div
-        style={{
-          background: "#ffffff",
-          borderRadius: 16,
-          border: "1px solid #e5e7eb",
-          padding: 16,
-          boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
-          marginBottom: 16,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 16,
-          flexWrap: "wrap",
-        }}
-      >
-        <div style={{ width: "100%", fontSize: 20, fontWeight: 900, color: "#0f172a" }}>
+      {/* Header (same pattern as test-02-main) */}
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-xl bg-white p-4 shadow">
+        <div className="w-full text-xl font-bold text-slate-900">
+          {typeof config.seqNum === "number" ? `${config.seqNum}. ` : ""}
           {config.name}
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ fontWeight: 900, color: "#0f172a" }}>С 3.3 — Найти окончание слов</div>
-          <div style={{ width: 1, height: 22, background: "#e5e7eb" }} />
-          <div style={{ fontFamily: "monospace", fontWeight: 900, color: "#0f172a" }}>
-            ⏱ {Math.floor(elapsedMs / 1000)}с
-          </div>
-        </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-          <div style={{ fontWeight: 900, color: "#10b981" }}>Верно: {correctCount}</div>
-          <div style={{ fontWeight: 900, color: "#ef4444" }}>Ошибок: {incorrectCount}</div>
-          <div
-            style={{
-              padding: "8px 12px",
-              borderRadius: 10,
-              border: "1px solid #e5e7eb",
-              background: "#ffffff",
-              fontWeight: 900,
-            }}
+        <div className="flex flex-wrap items-center gap-3">
+          <select
+            value={blockIndex}
+            onChange={(e) => setBlockIndex(Number(e.target.value))}
+            className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
+            aria-label="Выбор задания"
           >
-            Блок {blockIndex + 1} / {exerciseBlocks.length}
+            {exerciseBlocks.map((_, idx) => (
+              <option key={idx} value={idx}>
+                Задание {idx + 1}
+              </option>
+            ))}
+          </select>
+          <div className="text-lg font-semibold">
+            Задание {blockIndex + 1} из {exerciseBlocks.length}
           </div>
         </div>
-      </div>
 
-      <div style={{ textAlign: "center", fontSize: 18, fontWeight: 900, color: "#334155", marginBottom: 12 }}>
-        Выберите окончание и поставьте его на нужный «веер»
-      </div>
-
-      <div
-        style={{
-          borderRadius: 16,
-          border: "1px solid #e5e7eb",
-          background: "#ffffff",
-          padding: 16,
-          boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
-          marginBottom: 16,
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 10,
-          justifyContent: "center",
-        }}
-      >
-        {bank.map((e) => (
+        <div className="flex items-center gap-4">
+          <span className="font-semibold text-green-600">✓ {correctCount}</span>
+          <span className="font-semibold text-red-600">✗ {incorrectCount}</span>
+          <span className="font-mono">{formatTime(Math.floor(elapsedMs / 1000))}</span>
           <button
-            key={e}
             type="button"
-            onClick={() => pickEnding(e)}
-            disabled={isChecking || placed.includes(e)}
-            style={endingBtnStyle(e)}
+            onClick={finishTest}
+            className="rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
           >
-            {e}
+            Завершить тест
           </button>
-        ))}
+        </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
-        {block.fans.map((fan, idx) => (
-          <div
-            key={idx}
+      {/* Instruction (as in screenshot) */}
+      <div style={{ textAlign: "center", marginBottom: 18 }}>
+        <div style={{ fontSize: 28, fontWeight: 500, color: "#0f172a", lineHeight: 1.1 }}>Найти окончания слов</div>
+        <div style={{ marginTop: 6, fontSize: 16, fontWeight: 600, color: "#334155" }}>
+          Выберите слог и подставьте его в конец слова
+        </div>
+      </div>
+
+      {/* Bank */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center", marginBottom: 24 }}>
+        {bank.map((ending, idx) => {
+          const active = selectedEnding === ending;
+          const disabled = isChecking || placed.includes(ending);
+          return (
+            <button
+              key={`${ending}-${idx}`}
+              type="button"
+              onClick={() => pickEnding(ending)}
+              disabled={disabled}
+              style={{
+                borderRadius: 8,
+                border: "2px solid transparent",
+                borderColor: active ? "#60a5fa" : "transparent",
+                background: active ? "#ffffff" : "#f1f5f9",
+                color: "#0f172a",
+                padding: "8px 14px",
+                fontSize: 20,
+                fontWeight: 500,
+                boxShadow: active ? "0 0 0 3px rgba(96,165,250,0.35)" : "none",
+                transition: "box-shadow 120ms ease, background-color 120ms ease, border-color 120ms ease, opacity 120ms ease",
+                opacity: disabled ? 0.45 : 1,
+                cursor: disabled ? "not-allowed" : "pointer",
+              }}
+            >
+              {ending}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Fans (blue dotted boxes with rows) */}
+      <div className="mx-auto grid w-full max-w-[1100px] grid-cols-1 gap-8 md:grid-cols-3">
+        {block.fans.map((fan, idx) => {
+          const st = statuses[idx];
+          const isCorrect = st === "correct";
+          const isIncorrect = st === "incorrect";
+          const borderColor = isCorrect ? "#10b981" : isIncorrect ? "#ef4444" : "#7dd3fc";
+          const bg = isCorrect ? "#ecfdf5" : isIncorrect ? "#fee2e2" : "#e0f2fe";
+          const borderStyle = isCorrect || isIncorrect ? "solid" : "dashed";
+          const borderWidth = isCorrect || isIncorrect ? 2 : 1;
+          const chosenEnding = placed[idx];
+          const fanLocked = isChecking;
+
+          return (
+            <div
+              key={idx}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => onFanClick(idx)}
+              style={{
+                borderRadius: 12,
+                border: `${borderWidth}px ${borderStyle} ${borderColor}`,
+                background: bg,
+                padding: 36,
+                cursor: fanLocked ? "default" : "pointer",
+                userSelect: "none",
+              }}
+            >
+              <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+                {fan.beginnings.map((b) => {
+                  const showSolvedWord = isCorrect && !!chosenEnding;
+                  const showCombinedWord = !isCorrect && !!chosenEnding;
+                  return (
+                    <div key={b} style={{ display: "flex", alignItems: "center", gap: 8, minHeight: 26 }}>
+                      {showSolvedWord ? (
+                        <div
+                          style={{
+                            fontSize: 22,
+                            fontWeight: 500,
+                            color: "#0f172a",
+                            whiteSpace: "nowrap",
+                            lineHeight: "normal",
+                          }}
+                        >
+                          {b}
+                          {chosenEnding}
+                        </div>
+                      ) : (
+                        <>
+                          {showCombinedWord ? (
+                            <div
+                              style={{
+                                fontSize: 22,
+                                fontWeight: 500,
+                                color: "#0f172a",
+                                whiteSpace: "nowrap",
+                                lineHeight: "normal",
+                              }}
+                            >
+                              {b} {chosenEnding}
+                            </div>
+                          ) : (
+                            <>
+                              <div style={{ fontSize: 22, fontWeight: 500, color: "#0f172a", whiteSpace: "nowrap" }}>{b}</div>
+                              <div
+                                style={{
+                                  flex: "0 0 48px",
+                                  position: "relative",
+                                  height: 22,
+                                  display: "flex",
+                                  alignItems: "flex-end",
+                                  marginLeft: 8,
+                                  marginRight: 8,
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    position: "absolute",
+                                    left: 0,
+                                    right: 0,
+                                    bottom: 2,
+                                    borderBottom: "2px solid #0f172a",
+                                    opacity: 0.9,
+                                  }}
+                                />
+                              </div>
+                            </>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {isBlockComplete && !isChecking && blockIndex < exerciseBlocks.length - 1 && (
+        <div style={{ marginTop: 14, display: "flex", justifyContent: "center" }}>
+          <button
+            type="button"
+            onClick={handleNextBlock}
+            disabled={isChecking}
             style={{
+              height: 46,
+              minWidth: 220,
+              padding: "0 28px",
               borderRadius: 16,
-              border: "1px solid #e5e7eb",
-              background: "#ffffff",
-              padding: 16,
-              boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+              background: "#7dd3fc",
+              color: "#ffffff",
+              fontWeight: 500,
+              fontSize: 32,
+              lineHeight: 1,
+              border: "0",
+              cursor: isChecking ? "default" : "pointer",
+              opacity: isChecking ? 0.6 : 1,
             }}
           >
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", marginBottom: 10 }}>
-              {fan.beginnings.map((b) => (
-                <span
-                  key={b}
-                  style={{
-                    padding: "6px 10px",
-                    borderRadius: 999,
-                    border: "1px solid #e5e7eb",
-                    background: "#f8fafc",
-                    fontWeight: 800,
-                    color: "#0f172a",
-                  }}
-                >
-                  {b}
-                </span>
-              ))}
-            </div>
+            Дальше &gt;
+          </button>
+        </div>
+      )}
 
-            <div onClick={() => onFanClick(idx)} style={fanSlotStyle(idx)}>
-              {placed[idx] ?? "—"}
-            </div>
-          </div>
-        ))}
-      </div>
+      {isBlockComplete && !isChecking && blockIndex === exerciseBlocks.length - 1 && (
+        <div style={{ marginTop: 14, display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap" }}>
+          <button
+            type="button"
+            onClick={finishTest}
+            disabled={isChecking}
+            style={{
+              height: 46,
+              minWidth: 220,
+              padding: "0 28px",
+              borderRadius: 16,
+              background: "#7dd3fc",
+              color: "#ffffff",
+              fontWeight: 500,
+              fontSize: 32,
+              lineHeight: 1,
+              border: "0",
+              cursor: isChecking ? "default" : "pointer",
+              opacity: isChecking ? 0.6 : 1,
+            }}
+          >
+            Завершить
+          </button>
+        </div>
+      )}
     </div>
   );
 }
