@@ -18,11 +18,27 @@ export default function TestPage() {
 
   const seqNum =
     typeof (test.config as any)?.seqNum === "number" ? (test.config as any).seqNum : null;
-  const numberedName =
-    seqNum && !String(test.config.name).startsWith(`${seqNum}. `)
-      ? `${seqNum}. ${test.config.name}`
-      : test.config.name;
-  const config = seqNum ? { ...test.config, name: numberedName } : test.config;
+
+  // For the first five tests we intentionally do NOT show the seqNum prefix in the in-test headers.
+  const shouldPrefixName = typeof seqNum === "number" && seqNum > 5;
+
+  const originalName = String(test.config.name ?? "");
+  const prefixedName =
+    typeof seqNum === "number" && originalName.startsWith(`${seqNum}. `)
+      ? originalName
+      : typeof seqNum === "number"
+        ? `${seqNum}. ${originalName}`
+        : originalName;
+
+  const unprefixedName =
+    typeof seqNum === "number" && originalName.startsWith(`${seqNum}. `)
+      ? originalName.slice(`${seqNum}. `.length)
+      : originalName;
+
+  const config =
+    typeof seqNum === "number"
+      ? { ...test.config, name: shouldPrefixName ? prefixedName : unprefixedName }
+      : test.config;
 
   return (
     <div

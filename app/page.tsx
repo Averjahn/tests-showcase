@@ -141,25 +141,35 @@ export default async function HomePage({
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "space-between",
                   gap: 12,
-                  border: "1px solid #d1d5db",
-                  borderRadius: 12,
-                  padding: "14px 16px",
-                  background: "#f9fafb",
+                  flexWrap: "wrap",
                 }}
               >
-                <a
-                  href={href}
+                <div
                   style={{
-                    fontWeight: 600,
-                    textDecoration: "none",
-                    color: "#111827",
-                    flex: "1 1 auto",
+                    display: "flex",
+                    alignItems: "center",
+                    border: "1px solid #d1d5db",
+                    borderRadius: 12,
+                    padding: "14px 16px",
+                    background: "#f9fafb",
+                    width: "100%",
+                    maxWidth: 560,
+                    flex: "1 1 420px",
                   }}
                 >
-                  {title}
-                </a>
+                  <a
+                    href={href}
+                    style={{
+                      fontWeight: 600,
+                      textDecoration: "none",
+                      color: "#111827",
+                      flex: "1 1 auto",
+                    }}
+                  >
+                    {title}
+                  </a>
+                </div>
 
                 <a
                   href={discussionHref}
