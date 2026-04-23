@@ -1,0 +1,137 @@
+[
+  {
+    "id": 1,
+    "words": [
+      { "id": 1, "word": "моч", "correctWord": "мяч", "image": "1_1.png" },
+      { "id": 2, "word": "лык", "correctWord": "лук", "image": "1_2.png" },
+      { "id": 3, "word": "кет", "correctWord": "кот", "image": "1_3.png" },
+      { "id": 4, "word": "рик", "correctWord": "рак", "image": "1_4.png" }
+    ]
+  },
+  {
+    "id": 2,
+    "words": [
+      { "id": 1, "word": "дад", "correctWord": "дед", "image": "2_1.png" },
+      { "id": 2, "word": "жэк", "correctWord": "жук", "image": "2_2.png" },
+      { "id": 3, "word": "нуж", "correctWord": "нож", "image": "2_3.png" },
+      { "id": 4, "word": "рес", "correctWord": "рис", "image": "2_4.png" }
+    ]
+  },
+  {
+    "id": 3,
+    "words": [
+      { "id": 1, "word": "дим", "correctWord": "дым", "image": "3_1.png" },
+      { "id": 2, "word": "лог", "correctWord": "луг", "image": "3_2.png" },
+      { "id": 3, "word": "нус", "correctWord": "нос", "image": "3_3.png" },
+      { "id": 4, "word": "шэр", "correctWord": "шар", "image": "3_4.png" }
+    ]
+  },
+  {
+    "id": 4,
+    "words": [
+      { "id": 1, "word": "диш", "correctWord": "душ", "image": "4_1.png" },
+      { "id": 2, "word": "лек", "correctWord": "люк", "image": "4_2.png" },
+      { "id": 3, "word": "пяр", "correctWord": "пар", "image": "4_3.png" },
+      { "id": 4, "word": "руг", "correctWord": "рог", "image": "4_4.png" }
+    ]
+  },
+  {
+    "id": 5,
+    "words": [
+      { "id": 1, "word": "пэл", "correctWord": "пол", "image": "5_1.png" },
+      { "id": 2, "word": "кят", "correctWord": "кит", "image": "5_2.png" },
+      { "id": 3, "word": "муч", "correctWord": "меч", "image": "5_3.png" },
+      { "id": 4, "word": "чей", "correctWord": "чай", "image": "5_4.png" }
+    ]
+  },
+  {
+    "id": 6,
+    "words": [
+      { "id": 1, "word": "пих", "correctWord": "пух", "image": "6_1.png" },
+      { "id": 2, "word": "рет", "correctWord": "рот", "image": "6_2.png" },
+      { "id": 3, "word": "тоз", "correctWord": "таз", "image": "6_3.png" },
+      { "id": 4, "word": "луд", "correctWord": "лёд", "image": "6_4.png" }
+    ]
+  },
+  {
+    "id": 7,
+    "words": [
+      { "id": 1, "word": "сюд", "correctWord": "сад", "image": "7_1.png" },
+      { "id": 2, "word": "мод", "correctWord": "мёд", "image": "7_2.png" },
+      { "id": 3, "word": "хар", "correctWord": "хор", "image": "7_3.png" },
+      { "id": 4, "word": "лег", "correctWord": "луг", "image": "7_4.png" }
+    ]
+  },
+  {
+    "id": 8,
+    "words": [
+      { "id": 1, "word": "сим", "correctWord": "сом", "image": "8_1.png" },
+      { "id": 2, "word": "лек", "correctWord": "лак", "image": "8_2.png" },
+      { "id": 3, "word": "заб", "correctWord": "зуб", "image": "8_3.png" },
+      { "id": 4, "word": "пос", "correctWord": "пёс", "image": "8_4.png" }
+    ]
+  },
+  {
+    "id": 9,
+    "words": [
+      { "id": 1, "word": "вуник", "correctWord": "веник", "image": "9_1.png" },
+      { "id": 2, "word": "дотел", "correctWord": "дятел", "image": "9_2.png" },
+      { "id": 3, "word": "килос", "correctWord": "колос", "image": "9_3.png" },
+      { "id": 4, "word": "пелец", "correctWord": "палец", "image": "9_4.png" }
+    ]
+  },
+  {
+    "id": 10,
+    "words": [
+      { "id": 1, "word": "вотер", "correctWord": "ветер", "image": "10_1.png" },
+      { "id": 2, "word": "зумок", "correctWord": "замок", "image": "10_2.png" },
+      { "id": 3, "word": "певар", "correctWord": "повар", "image": "10_3.png" },
+      { "id": 4, "word": "фалин", "correctWord": "филин", "image": "10_4.png" }
+    ]
+  },
+  {
+    "id": 11,
+    "words": [
+      { "id": 1, "word": "вирон", "correctWord": "ворон", "image": "11_1.png" },
+      { "id": 2, "word": "кабик", "correctWord": "кубик", "image": "11_2.png" },
+      { "id": 3, "word": "пурец", "correctWord": "перец", "image": "11_3.png" },
+      { "id": 4, "word": "фокел", "correctWord": "факел", "image": "11_4.png" }
+    ]
+  },
+  {
+    "id": 12,
+    "words": [
+      { "id": 1, "word": "пурус", "correctWord": "парус", "image": "12_1.png" },
+      { "id": 2, "word": "ребот", "correctWord": "робот", "image": "12_2.png" },
+      { "id": 3, "word": "фяник", "correctWord": "финик", "image": "12_3.png" },
+      { "id": 4, "word": "табик", "correctWord": "тюбик", "image": "12_4.png" }
+    ]
+  },
+  {
+    "id": 13,
+    "words": [
+      { "id": 1, "word": "шушка", "correctWord": "шишка", "image": "13_1.png" },
+      { "id": 2, "word": "меска", "correctWord": "маска", "image": "13_2.png" },
+      { "id": 3, "word": "таква", "correctWord": "тыква", "image": "13_3.png" },
+      { "id": 4, "word": "кякла", "correctWord": "кукла", "image": "13_4.png" }
+    ]
+  },
+  {
+    "id": 14,
+    "words": [
+      { "id": 1, "word": "бунка", "correctWord": "банка", "image": "14_1.png" },
+      { "id": 2, "word": "волка", "correctWord": "вилка", "image": "14_2.png" },
+      { "id": 3, "word": "семка", "correctWord": "сумка", "image": "14_3.png" },
+      { "id": 4, "word": "ширты", "correctWord": "шорты", "image": "14_4.png" }
+    ]
+  },
+  {
+    "id": 15,
+    "words": [
+      { "id": 1, "word": "бючка", "correctWord": "бочка", "image": "15_1.png" },
+      { "id": 2, "word": "вунна", "correctWord": "ванна", "image": "15_2.png" },
+      { "id": 3, "word": "мыска", "correctWord": "миска", "image": "15_3.png" },
+      { "id": 4, "word": "рачка", "correctWord": "ручка", "image": "15_4.png" }
+    ]
+  }
+]

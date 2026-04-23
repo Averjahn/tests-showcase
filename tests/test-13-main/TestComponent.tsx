@@ -1,12 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import type { TestComponentProps, TestResult } from "../shared/TestInterface";
 import { TASKS, VOWELS } from "./tasks-data";
-
-const level = 1;
-const tasks = TASKS[level] ?? [];
-const wordsToShow = 2;
 
 function formatTime(ms: number) {
   const totalSeconds = Math.floor(ms / 1000);
@@ -16,6 +12,7 @@ function formatTime(ms: number) {
 }
 
 export default function Test13Main({ config, onComplete }: TestComponentProps) {
+  const [level, setLevel] = useState<1 | 2 | 3>(1);
   const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [incorrectAnswers, setIncorrectAnswers] = useState(0);
@@ -32,17 +29,28 @@ export default function Test13Main({ config, onComplete }: TestComponentProps) {
   const elapsedMsRef = useRef<number>(0);
   const completedRef = useRef(false);
 
+  const tasks = TASKS;
+  const wordsToShow = useMemo(() => (level === 1 ? 2 : level === 2 ? 3 : 4), [level]);
   const currentTask = tasks[currentTaskIndex];
 
   useEffect(() => {
     if (!currentTask) return;
-    setCorrectedWords([...currentTask.incorrect]);
+    setCorrectedWords([...currentTask.incorrect.slice(0, wordsToShow)]);
     setWordStates(new Array(wordsToShow).fill("normal"));
     setSelectedLetter(null);
     setSelectedVowel(null);
     setShowSuccess(false);
     setReadyToProceed(false);
-  }, [currentTaskIndex, currentTask]);
+  }, [currentTaskIndex, currentTask, wordsToShow]);
+
+  useEffect(() => {
+    // reset when level changes
+    setCurrentTaskIndex(0);
+    setSelectedLetter(null);
+    setSelectedVowel(null);
+    setShowSuccess(false);
+    setReadyToProceed(false);
+  }, [level]);
 
   useEffect(() => {
     startedAtIsoRef.current = new Date().toISOString();
@@ -164,6 +172,16 @@ export default function Test13Main({ config, onComplete }: TestComponentProps) {
 
           <div className="flex flex-wrap items-center gap-3">
             <select
+              value={level}
+              onChange={(e) => setLevel(Number(e.target.value) as 1 | 2 | 3)}
+              className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
+              aria-label="Выбор уровня"
+            >
+              <option value={1}>Уровень 1</option>
+              <option value={2}>Уровень 2</option>
+              <option value={3}>Уровень 3</option>
+            </select>
+            <select
               value={currentTaskIndex}
               onChange={(e) => setCurrentTaskIndex(Number(e.target.value))}
               className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
@@ -199,14 +217,34 @@ export default function Test13Main({ config, onComplete }: TestComponentProps) {
       <div>
         <div className="flex gap-8 flex-wrap">
           <div className="flex-1 min-w-[280px]">
-            <div className="flex w-full gap-8 mb-8">
+            <div
+              className={[
+                wordsToShow === 4 ? "grid grid-cols-2 gap-8 mb-8" : "flex w-full gap-8 mb-8",
+              ].join(" ")}
+            >
               {currentTask.words.slice(0, wordsToShow).map((word, wordIndex) => (
-                <div key={wordIndex} className="flex-1 min-w-[220px] flex flex-col">
-                  <div className="flex-1 rounded-lg shadow-md bg-gray-100 overflow-hidden">
+                <div
+                  key={wordIndex}
+                  className={[
+                    "flex flex-col",
+                    wordsToShow === 4 ? "min-w-0" : "flex-1 min-w-[220px]",
+                  ].join(" ")}
+                >
+                  <div
+                    className={[
+                      "rounded-lg shadow-md bg-gray-100 overflow-hidden",
+                      // In level 3 (4 cards) use fixed media height to avoid overflow.
+                      wordsToShow === 4 ? "h-[220px]" : "flex-1",
+                    ].join(" ")}
+                  >
                     <img
                       src={currentTask.images[wordIndex] || "/placeholder.svg"}
                       alt=""
-                      className="w-full h-full object-cover"
+                      className={[
+                        "w-full h-full",
+                        // In level 3 (4 cards) avoid cropping.
+                        wordsToShow === 4 ? "object-contain bg-white" : "object-cover",
+                      ].join(" ")}
                     />
                   </div>
                   <div className="mt-4 flex justify-center">

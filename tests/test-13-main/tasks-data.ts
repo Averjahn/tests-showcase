@@ -1,19 +1,43 @@
+import RAW from "./tasks.json";
+
 export type TaskItem = {
-  words: string[];
-  incorrect: string[];
-  corrections: Record<string, string>;
-  images: string[];
+  id: number;
+  words: string[]; // correct words, UPPERCASE
+  incorrect: string[]; // incorrect words, UPPERCASE
+  corrections: Record<string, string>; // incorrectChar -> correctChar (UPPERCASE)
+  images: string[]; // public paths
 };
 
-export const TASKS: Record<number, TaskItem[]> = {
-  1: [
-    { words: ["МЯЧ", "ЛУК"], incorrect: ["МОЧ", "ЛЫК"], corrections: { О: "Я", Ы: "У" }, images: ["/images/ball-soccer.png", "/images/green-onion-vegetable.png"] },
-    { words: ["ДЕД", "ЖУК"], incorrect: ["ДАД", "ЖЭК"], corrections: { А: "Е", Э: "У" }, images: ["/images/elderly-man-grandfather.png", "/images/beetle-insect.png"] },
-    { words: ["ДЫМ", "ЛУГ"], incorrect: ["ДИМ", "ЛОГ"], corrections: { И: "Ы", О: "У" }, images: ["/images/grey-smoke.png", "/images/green-meadow.png"] },
-    { words: ["ДУШ", "ЛЮК"], incorrect: ["ДИШ", "ЛЕК"], corrections: { И: "У", Е: "Ю" }, images: ["/images/shower-bathroom.png", "/images/hatch-manhole.png"] },
-    { words: ["ВЕНИК", "ДЯТЕЛ"], incorrect: ["ВУНИК", "ДОТЕЛ"], corrections: { У: "Е", О: "Я" }, images: ["/images/broom-cleaning.png", "/images/woodpecker-bird.png"] },
-    { words: ["ВЕТЕР", "ЗАМОК"], incorrect: ["ВОТЕР", "ЗУМОК"], corrections: { О: "Е", У: "А" }, images: ["/images/wind-nature.png", "/images/castle-medieval.png"] },
-  ],
-};
+type RawWord = { id: number; word: string; correctWord: string; image: string };
+type RawTask = { id: number; words: RawWord[] };
+
+function toUpperRu(s: string) {
+  return String(s ?? "").toUpperCase();
+}
+
+function buildCorrections(pairs: Array<{ incorrect: string; correct: string }>): Record<string, string> {
+  const map: Record<string, string> = {};
+  for (const p of pairs) {
+    const a = toUpperRu(p.incorrect);
+    const b = toUpperRu(p.correct);
+    const len = Math.min(a.length, b.length);
+    for (let i = 0; i < len; i++) {
+      const ai = a[i]!;
+      const bi = b[i]!;
+      if (ai !== bi) map[ai] = bi;
+    }
+  }
+  return map;
+}
+
+const rawTasks = (RAW as unknown as RawTask[]) ?? [];
+
+export const TASKS: TaskItem[] = rawTasks.map((t) => {
+  const words = t.words.map((w) => toUpperRu(w.correctWord));
+  const incorrect = t.words.map((w) => toUpperRu(w.word));
+  const images = t.words.map((w) => `/tests/test-13-main/images/${w.image}`);
+  const corrections = buildCorrections(t.words.map((w) => ({ incorrect: w.word, correct: w.correctWord })));
+  return { id: t.id, words, incorrect, images, corrections };
+});
 
 export const VOWELS = ["А", "О", "У", "Э", "Ы", "Я", "Ё", "Ю", "Е", "И"];
