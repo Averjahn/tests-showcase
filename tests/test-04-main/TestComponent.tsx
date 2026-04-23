@@ -31,6 +31,7 @@ export default function Test04Main({ config, onComplete }: TestComponentProps) {
   const [statuses, setStatuses] = useState<Array<Outcome | null>>([null, null, null]);
   const [attempt, setAttempt] = useState(0);
   const [isChecking, setIsChecking] = useState(false);
+  const [feedback, setFeedback] = useState<"correct" | null>(null);
   // Prevent auto-check from firing during block switches (race between effects).
   const skipAutoCheckRef = useRef(false);
 
@@ -87,6 +88,22 @@ export default function Test04Main({ config, onComplete }: TestComponentProps) {
 
   const canCheck = useMemo(() => placed.every((x) => !!x), [placed]);
   const isBlockComplete = useMemo(() => statuses.every((s) => s === "correct"), [statuses]);
+  const prevIsCompleteRef = useRef(false);
+
+  useEffect(() => {
+    // reset transition tracker per block
+    prevIsCompleteRef.current = false;
+    setFeedback(null);
+  }, [blockIndex]);
+
+  useEffect(() => {
+    const prev = prevIsCompleteRef.current;
+    prevIsCompleteRef.current = isBlockComplete;
+    if (!prev && isBlockComplete) {
+      setFeedback("correct");
+      window.setTimeout(() => setFeedback(null), 900);
+    }
+  }, [isBlockComplete]);
 
   const check = (placedEndings: Array<string | null>) => {
     if (!canCheck || isChecking) return;
@@ -323,6 +340,12 @@ export default function Test04Main({ config, onComplete }: TestComponentProps) {
         </div>
       </div>
 
+      {feedback && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+          <div className="rounded-full bg-green-500 p-8 text-6xl text-white">✓</div>
+        </div>
+      )}
+
       {/* Bank */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center", marginBottom: 24 }}>
         {bank.map((ending, idx) => {
@@ -413,7 +436,8 @@ export default function Test04Main({ config, onComplete }: TestComponentProps) {
                                 lineHeight: "normal",
                               }}
                             >
-                              {b} {chosenEnding}
+                              {b}
+                              {chosenEnding}
                             </div>
                           ) : (
                             <>
@@ -460,14 +484,14 @@ export default function Test04Main({ config, onComplete }: TestComponentProps) {
             onClick={handleNextBlock}
             disabled={isChecking}
             style={{
-              height: 46,
-              minWidth: 220,
+              height: 50,
+              minWidth: 240,
               padding: "0 28px",
-              borderRadius: 16,
+              borderRadius: 999,
               background: "#7dd3fc",
               color: "#ffffff",
-              fontWeight: 500,
-              fontSize: 32,
+              fontWeight: 400,
+              fontSize: 24,
               lineHeight: 1,
               border: "0",
               cursor: isChecking ? "default" : "pointer",
@@ -486,14 +510,14 @@ export default function Test04Main({ config, onComplete }: TestComponentProps) {
             onClick={finishTest}
             disabled={isChecking}
             style={{
-              height: 46,
-              minWidth: 220,
+              height: 50,
+              minWidth: 240,
               padding: "0 28px",
-              borderRadius: 16,
+              borderRadius: 999,
               background: "#7dd3fc",
               color: "#ffffff",
-              fontWeight: 500,
-              fontSize: 32,
+              fontWeight: 400,
+              fontSize: 24,
               lineHeight: 1,
               border: "0",
               cursor: isChecking ? "default" : "pointer",

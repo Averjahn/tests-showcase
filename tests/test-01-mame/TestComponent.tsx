@@ -81,6 +81,7 @@ export default function Test01Mame({ config, onComplete }: TestComponentProps) {
   const [availableWords, setAvailableWords] = useState<string[]>([]);
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
   const [selectedFromZone, setSelectedFromZone] = useState<Zone | null>(null);
+  const [feedback, setFeedback] = useState<'correct' | null>(null);
 
   const [dropped, setDropped] = useState<Record<Zone, string | null>>({
     subject: null,
@@ -121,6 +122,22 @@ export default function Test01Mame({ config, onComplete }: TestComponentProps) {
     () => validation.subject === true && validation.verb === true && validation.object === true,
     [validation],
   );
+  const prevIsCompleteRef = useRef(false);
+
+  useEffect(() => {
+    // reset transition tracker per phrase
+    prevIsCompleteRef.current = false;
+    setFeedback(null);
+  }, [currentPhraseIndex]);
+
+  useEffect(() => {
+    const prev = prevIsCompleteRef.current;
+    prevIsCompleteRef.current = isPhraseComplete;
+    if (!prev && isPhraseComplete) {
+      setFeedback('correct');
+      window.setTimeout(() => setFeedback(null), 900);
+    }
+  }, [isPhraseComplete]);
 
   const fillCorrect = () => {
     if (isChecking) return;
@@ -456,6 +473,12 @@ export default function Test01Mame({ config, onComplete }: TestComponentProps) {
         <div style={{ fontSize: 28, fontWeight: 500, color: '#0f172a', lineHeight: 1.1 }}>Составьте фразу из слов</div>
       </div>
 
+      {feedback && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+          <div className="rounded-full bg-green-500 p-8 text-6xl text-white">✓</div>
+        </div>
+      )}
+
       <div
         style={{
           background: '#ffffff',
@@ -576,14 +599,14 @@ export default function Test01Mame({ config, onComplete }: TestComponentProps) {
           type="button"
           onClick={handleNextPhrase}
           style={{
-            height: 46,
-            minWidth: 220,
+            height: 50,
+            minWidth: 240,
             padding: '0 28px',
-            borderRadius: 16,
+            borderRadius: 999,
             background: '#7dd3fc',
             color: '#ffffff',
-            fontWeight: 500,
-            fontSize: 32,
+            fontWeight: 400,
+            fontSize: 24,
             lineHeight: 1,
             border: '0',
           }}
@@ -599,14 +622,14 @@ export default function Test01Mame({ config, onComplete }: TestComponentProps) {
           type="button"
           onClick={finishTest}
           style={{
-            height: 46,
-            minWidth: 220,
+            height: 50,
+            minWidth: 240,
             padding: '0 28px',
-            borderRadius: 16,
+            borderRadius: 999,
             background: '#7dd3fc',
             color: '#ffffff',
-            fontWeight: 500,
-            fontSize: 32,
+            fontWeight: 400,
+            fontSize: 24,
             lineHeight: 1,
             border: '0',
           }}

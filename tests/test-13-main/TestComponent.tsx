@@ -255,6 +255,29 @@ export default function Test13Main({ config, onComplete }: TestComponentProps) {
                 </div>
               ))}
             </div>
+
+            {readyToProceed && (
+              <div style={{ marginTop: 14, display: "flex", justifyContent: "center" }}>
+                <button
+                  type="button"
+                  onClick={isLastTask ? finishTest : handleNextTask}
+                  style={{
+                    height: 50,
+                    minWidth: 240,
+                    padding: "0 28px",
+                    borderRadius: 999,
+                    background: "#7dd3fc",
+                    color: "#ffffff",
+                    fontWeight: 400,
+                    fontSize: 24,
+                    lineHeight: 1,
+                    border: "0",
+                  }}
+                >
+                  {isLastTask ? "Завершить" : "Дальше >"}
+                </button>
+              </div>
+            )}
           </div>
           <div className="w-48">
             <div className={`p-4 rounded-xl border-2 ${isVowelPanelVisible ? "ring-2 ring-blue-500 bg-blue-50 border-blue-200" : "border-gray-200 bg-white"}`}>
@@ -270,34 +293,11 @@ export default function Test13Main({ config, onComplete }: TestComponentProps) {
           </div>
         </div>
         {showSuccess && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-            <div className="bg-white rounded-full p-8">✓</div>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+            <div className="rounded-full bg-green-500 p-8 text-6xl text-white">✓</div>
           </div>
         )}
       </div>
-
-      {readyToProceed && (
-        <div style={{ marginTop: 14, display: "flex", justifyContent: "center" }}>
-          <button
-            type="button"
-            onClick={isLastTask ? finishTest : handleNextTask}
-            style={{
-              height: 46,
-              minWidth: 220,
-              padding: "0 28px",
-              borderRadius: 16,
-              background: "#7dd3fc",
-              color: "#ffffff",
-              fontWeight: 500,
-              fontSize: 32,
-              lineHeight: 1,
-              border: "0",
-            }}
-          >
-            {isLastTask ? "Завершить" : "Дальше >"}
-          </button>
-        </div>
-      )}
     </div>
   );
 }

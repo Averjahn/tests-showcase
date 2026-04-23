@@ -50,8 +50,9 @@ export default function Test02Main({ config, onComplete }: TestComponentProps) {
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
   const [selectedPart, setSelectedPart] = useState<string | null>(null);
   const [placedParts, setPlacedParts] = useState<PlacedPart[]>([]);
-  const [availableParts, setAvailableParts] = useState<string[]>(() => [...exercises[0]!.parts]);
+  const [availableParts, setAvailableParts] = useState<string[]>(() => shuffleArray([...exercises[0]!.parts]));
   const [readyToFinish, setReadyToFinish] = useState(false);
+  const [feedback, setFeedback] = useState<'correct' | null>(null);
 
   const [correctCount, setCorrectCount] = useState(0);
   const [incorrectCount, setIncorrectCount] = useState(0);
@@ -84,6 +85,16 @@ export default function Test02Main({ config, onComplete }: TestComponentProps) {
     [placedParts],
   );
   const isExerciseComplete = correctPlaced === 10;
+  const prevIsCompleteRef = useRef(false);
+
+  useEffect(() => {
+    const prev = prevIsCompleteRef.current;
+    prevIsCompleteRef.current = isExerciseComplete;
+    if (!prev && isExerciseComplete) {
+      setFeedback('correct');
+      window.setTimeout(() => setFeedback(null), 900);
+    }
+  }, [isExerciseComplete]);
 
   const slotKey = (exerciseId: string | number, column: Column, position: number) =>
     `${exerciseId}:${column}:${position}`;
@@ -400,6 +411,12 @@ export default function Test02Main({ config, onComplete }: TestComponentProps) {
         </div>
       </div>
 
+      {feedback && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+          <div className="rounded-full bg-green-500 p-8 text-6xl text-white">✓</div>
+        </div>
+      )}
+
       {/* Instruction (as in design screenshot) */}
       <div style={{ textAlign: 'center', marginBottom: 18 }}>
         <div style={{ fontSize: 28, fontWeight: 500, color: '#0f172a', lineHeight: 1.1 }}>Добавьте части слова</div>
@@ -611,14 +628,14 @@ export default function Test02Main({ config, onComplete }: TestComponentProps) {
             type="button"
             onClick={handleNextExercise}
             style={{
-              height: 46,
-              minWidth: 220,
+              height: 50,
+              minWidth: 240,
               padding: '0 28px',
-              borderRadius: 16,
+              borderRadius: 999,
               background: '#7dd3fc',
               color: '#ffffff',
-              fontWeight: 500,
-              fontSize: 32,
+              fontWeight: 400,
+              fontSize: 24,
               lineHeight: 1,
               border: '0',
             }}
@@ -634,14 +651,14 @@ export default function Test02Main({ config, onComplete }: TestComponentProps) {
             type="button"
             onClick={finishTest}
             style={{
-              height: 46,
-              minWidth: 220,
+              height: 50,
+              minWidth: 240,
               padding: '0 28px',
-              borderRadius: 16,
+              borderRadius: 999,
               background: '#7dd3fc',
               color: '#ffffff',
-              fontWeight: 500,
-              fontSize: 32,
+              fontWeight: 400,
+              fontSize: 24,
               lineHeight: 1,
               border: '0',
             }}

@@ -245,14 +245,14 @@ export default function Test14Main({ config, onComplete }: TestComponentProps) {
               type="button"
               onClick={isLastTask ? handleFinish : handleNextTask}
               style={{
-                height: 46,
-                minWidth: 220,
+                height: 50,
+                minWidth: 240,
                 padding: "0 28px",
-                borderRadius: 16,
+                borderRadius: 999,
                 background: "#7dd3fc",
                 color: "#ffffff",
-                fontWeight: 500,
-                fontSize: 32,
+                fontWeight: 400,
+                fontSize: 24,
                 lineHeight: 1,
                 border: "0",
               }}
